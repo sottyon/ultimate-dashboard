@@ -8,7 +8,7 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 
 | Page | What it is |
 |---|---|
-| Dashboard | Liquid Glass home page:<br>• Greeting with today's tasks due and money left this week<br>• **Search** across tabs, tasks, habits, books and workouts<br>• **Bell** button that opens text reminders, and **+** button that adds a new task<br>• **Finances** ring (share of this week's budget spent)<br>• **Week in Depth** chart (tasks finished vs. spending, Mon–Sun)<br>• **Habits** ring and daily dots<br>• **Tasks** ring with All / Completed / Still to do and a checklist you can tick<br>• **Today**: Google Calendar events and a drop-down of today's spending<br>• **Notes** and the daily-text toggle<br>• **Workouts** and **Book Tracker** rings<br>• The iPhone tip<br>Every card links to its tab. The greeting name is `displayName` in `supabase-config.js` |
+| Dashboard | Liquid Glass home page:<br>• Greeting with today's tasks due and money left this week<br>• **Search** across tabs, tasks, habits, books and workouts<br>• **Bell** button that opens text reminders, and **+** button that adds a new task<br>• **Finances** ring (share of this week's budget spent)<br>• **Week in Depth** chart (tasks finished vs. spending, Mon–Sun)<br>• **Habits** ring and daily dots<br>• **Tasks** ring with All / Completed / Still to do and a checklist you can tick<br>• **Today**: Google Calendar events and a drop-down of today's spending<br>• **Notes** and the daily-text toggle<br>• **Workouts** and **Book Tracker** rings<br>• The iPhone tip<br>Every card links to its tab. To show a name in the greeting, add `displayName: "…"` to `supabase-config.js` (it's public, like the rest of the site's code) |
 | **Tasks** | Task checklist with Work/Personal filters, **New task** (optional due day and time), the progress chart and notes |
 | **Workout Tracker** (replaces Week At A Glance) | Tap what you did each day: Back/Biceps, Glutes, Legs, Hot Pilates, Reformer Pilates, Hot Yoga, Cycle, Stair Master, Core or Rest day. Choosing **Rest day** clears that day's workouts, and choosing a workout clears Rest day. Shows weekly totals and lets you move between weeks |
 | Week in Depth | For each day: **tasks due** (with time), **Google Calendar events**, **habits** ticked in Habit Tracker or logged on the card, and a **"Monday Spending Overview"** drop-down with that day's total and transactions from Finances |
@@ -56,6 +56,9 @@ Plan on about 30 minutes for steps 1 to 7. Steps 8 and 9 are optional.
 1. Go to **Authentication → Sign In / Providers**, then **Email**. Make sure **Email** is enabled.
 2. Go to **Authentication → Settings** (or **Sign In / Providers → User Signups**) and turn **off** "Allow new users to sign up".
 3. Go to **Authentication → Users → Add user → Create new user**. Enter your email and a password, tick **Auto Confirm User**, and click **Create user**.
+
+### 3b. Account lock (done)
+`supabase/account-lock.sql` has already been run on the `ultimate-dashboard` project. The database now refuses to create any new account, whatever the sign-up settings are, so only your existing account can sign in. It also removes table access the site never uses. To add another account on purpose later, follow the note at the top of that file.
 
 ### 4. Set the site URL
 1. Go to **Authentication → URL Configuration**.
