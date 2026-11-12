@@ -172,3 +172,14 @@ main button.secondary { background: var(--g-raised), var(--g-white) !important; 
 @media (prefers-reduced-transparency: reduce) {
   .dashboard-sidebar { -webkit-backdrop-filter: none; backdrop-filter: none; background: #fff !important; }
 }
+
+/* ---------- Workout Tracker and Tasks pages ---------- */
+.wo-stat, .wo-day {
+  background-image: var(--g-pane) !important; border-color: #fff !important;
+  box-shadow: var(--g-pane-shadow) !important; border-radius: var(--g-r-pane) !important;
+}
+.wo-chip, .wo-nav button, .wo-day-sum, .wo-tag {
+  background-image: var(--g-raised) !important; border-color: #fff !important; box-shadow: var(--g-raised-shadow) !important;
+}
+.dashboard-page-link[href="#page-2"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 8v8M4 10v4M17.5 8v8M20 10v4M6.5 12h11'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-8"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='16' height='16' rx='3'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E"); }

@@ -545,7 +545,8 @@
   function createDashboardSidebar(currentPage) {
     const pages = [
       { id: 1, title: 'Dashboard' },
-      { id: 2, title: 'Week At A Glance' },
+      { id: 8, title: 'Tasks' },
+      { id: 2, title: 'Workout Tracker' },
       { id: 6, title: 'Week in Depth' },
       { id: 3, title: 'Habit Tracker' },
       { id: 7, title: 'Finances' },
@@ -591,7 +592,7 @@
   }
 
   function setupDashboardNavigation() {
-    for (const pageNumber of [1, 2, 3, 4, 5, 6, 7]) {
+    for (const pageNumber of [1, 2, 3, 4, 5, 6, 7, 8]) {
       const page = document.getElementById(`page-${pageNumber}`);
       if (!page) continue;
 
@@ -605,7 +606,7 @@
       } else {
         const content = document.createElement('div');
         content.className = 'dashboard-page-content';
-        if (pageNumber === 2) {
+        if (pageNumber === 2 && page.classList.contains('px-4')) {
           for (const className of ['px-4', 'py-7', 'md:px-9', 'md:py-10']) {
             if (page.classList.contains(className)) {
               content.classList.add(className);

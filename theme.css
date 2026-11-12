@@ -79,3 +79,40 @@ budget-app { display: block; max-width: 760px; margin: 0 auto; }
 /* task form: title on its own row, then two fields per row */
 #task-form .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #task-form .form-grid > div:first-child { grid-column: 1 / -1; }
+
+/* Workout Tracker (page 2) */
+.workout-page .dashboard-page-content { padding: 43px clamp(14px, 5vw, 76px) 70px; }
+.workout-page .budget-page-intro { max-width: none; margin: 0 0 22px; }
+.workout-app { color: #44362f; }
+.wo-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.wo-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.wo-nav button { padding: 9px 16px; font-size: 14px; font-weight: 500; background: #fff; color: #44362f; border: 1px solid #dbdfeb; border-radius: 999px; cursor: pointer; }
+.wo-nav button:disabled { opacity: .5; cursor: default; }
+.wo-range { margin: 0; font-size: 20px; font-weight: 672; }
+.wo-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 2fr); gap: 14px; margin-bottom: 18px; }
+.wo-stat { background: #fff; border: 1px solid #dbdfeb; border-radius: 22px; padding: 16px 18px; display: flex; flex-direction: column; gap: 2px; }
+.wo-stat.pink { background: #fdbfce; } .wo-stat.aqua { background: #d0efef; }
+.wo-stat b { font-size: 30px; font-weight: 672; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.wo-stat b small { font-size: 16px; font-weight: 500; opacity: .6; }
+.wo-stat span { font-size: 13px; color: #6b5d55; }
+.wo-top-label { font-size: 12px !important; letter-spacing: .1em; text-transform: uppercase; font-weight: 672; color: #44362f !important; }
+.wo-mix { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.wo-tag { background: #eff1f6; border-radius: 999px; padding: 4px 10px; font-size: 12px !important; color: #44362f !important; }
+.wo-empty { margin-top: 6px; }
+.wo-week { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.wo-day { background: #fff; border: 1px solid #dbdfeb; border-radius: 22px; padding: 16px; }
+.wo-day.is-today { outline: 2px solid #fdbfce; outline-offset: -2px; }
+.wo-day-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.wo-day-head h3 { margin: 0; font-size: 18px; font-weight: 672; }
+.wo-day-head p { margin: 2px 0 0; font-size: 12px; color: #807672; }
+.wo-day-sum { font-size: 12px; font-weight: 600; background: #eff1f6; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.wo-day.is-rest .wo-day-sum { background: #d0efef; }
+.wo-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wo-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dbdfeb; background: #fff; color: #44362f; border-radius: 999px;
+  padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; transition: background-color .12s ease, transform .12s ease; }
+.wo-chip:hover { transform: translateY(-1px); }
+.wo-chip.on { background: #fdbfce; border-color: #fdbfce; font-weight: 600; }
+.wo-chip.rest.on { background: #d0efef; border-color: #d0efef; }
+.wo-chip:focus-visible { outline: 2px solid #44362f; outline-offset: 2px; }
+.wo-status { min-height: 20px; margin-top: 14px; font-size: 13px; color: #807672; }
+@media (max-width: 760px) { .wo-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .wo-stat.wide { grid-column: 1 / -1; } }

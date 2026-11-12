@@ -8,12 +8,16 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 
 | Page | What it is |
 |---|---|
-| Dashboard | Tasks (with an optional due day and time), notes, text-reminder settings, and a **Finances** card showing what's left to spend this week |
-| Week At A Glance, Habit Tracker, Book Tracker | Same as Daymark |
+| Dashboard | Task counts, **Finances**, **Workouts**, Habit Tracker, Book Tracker and **Tasks** summary cards, and text-reminder settings |
+| **Tasks** | Task checklist with Work/Personal filters, **New task** (optional due day and time), the progress chart and notes |
+| **Workout Tracker** (replaces Week At A Glance) | Tap what you did each day: Back/Biceps, Glutes, Legs, Hot Pilates, Reformer Pilates, Hot Yoga, Cycle, Stair Master, Core or Rest day. Choosing **Rest day** clears that day's workouts, and choosing a workout clears Rest day. Shows weekly totals and lets you move between weeks |
 | Week in Depth | For each day: **tasks due** (with time), **Google Calendar events**, **habits** ticked in Habit Tracker or logged on the card, and a **"Monday Spending Overview"** drop-down with that day's total and transactions from Finances |
+| Habit Tracker, Book Tracker | Same as Daymark |
 | **Finances** | The whole Paycheck Budget app, with its **Today · Activity · Month · Plan · Accounts** tabs at the top (shown only on this page), the **+** button, transfers, goals, balances and backup |
 | Quarterly (was Monthly Spending) | Quarterly goals, wins and the parking lot. "Spending vs. budget" moved to **Finances → Month**, and "Money at a glance" moved to **Finances → Accounts** |
 | Text Reminders | SMS opt-in page (now branded Ultimate Dashboard) |
+
+Workouts are saved as one `workout_log` record per day in `dashboard_records`, for example `{ "date": "2026-11-12", "workouts": ["legs", "core"] }`. Week At A Glance's old weekly goals and focus records stay in the database, but nothing shows them any more.
 
 ## What changed from the originals
 
