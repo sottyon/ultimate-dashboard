@@ -243,7 +243,7 @@
        </div>
        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <a href="#page-7" class="canva-card overview-budget-card rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#44362f]">Budget</span>
+         <span class="text-xs font-bold uppercase tracking-wider text-[#44362f]">Finances</span>
          <strong id="overview-budget-left" class="mt-2 block text-lg">Loading your budget…</strong>
          <span id="overview-budget-detail" class="mt-1 block text-sm text-[#44362f]"></span>
         </a>
@@ -252,7 +252,7 @@
          <strong id="overview-week-plan" class="mt-2 block text-lg">Loading weekly plan…</strong>
          <span id="overview-week-focus" class="mt-1 block text-sm text-[#807672]"></span>
         </a>
-        <a href="#page-6" class="canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+        <a href="#page-6" class="canva-card legacy-finance-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
          <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Week in Depth</span>
          <strong id="overview-week-spending" class="mt-2 block text-lg">Loading weekly spending…</strong>
          <span id="overview-week-habits" class="mt-1 block text-sm text-[#807672]"></span>
@@ -262,7 +262,7 @@
          <strong id="overview-habits" class="mt-2 block text-lg">Loading habits…</strong>
          <span id="overview-habit-checkins" class="mt-1 block text-sm text-[#807672]"></span>
         </a>
-        <a href="#page-4" class="canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+        <a href="#page-4" class="canva-card legacy-finance-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
          <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Monthly Spending</span>
          <strong id="overview-month-spending" class="mt-2 block text-lg">Loading monthly spending…</strong>
          <span id="overview-month-budget" class="mt-1 block text-sm text-[#807672]"></span>
@@ -1265,11 +1265,12 @@
      <div>
       <p data-template-id="page-kicker" class="canva-text section-label mb-2" style="color: #44362f; font-weight: 700; font-style: normal; font-size: 11px;">YOUR WEEK, DAY BY DAY</p>
       <h1 data-template-id="page-title" class="canva-text display leading-tight" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 30px;">A closer look at your week.</h1>
-      <p data-template-id="page-description" class="canva-text muted mt-2" style="color: #807672; font-weight: 400; font-style: normal; font-size: 15px;">Events, spending and habits — in one easy-to-scan place.</p>
+      <p data-template-id="page-description" class="canva-text muted mt-2" style="color: #807672; font-weight: 400; font-style: normal; font-size: 15px;">Events and habits, in one easy-to-scan place. Spending lives in Finances.</p>
      </div>
      <div class="flex items-center flex-wrap gap-2" aria-label="Week navigation"><button id="detail-previous-week" data-template-id="previous-week-label" type="button" class="canva-button px-3 py-2 border rounded-lg bg-white" style="background: rgb(255, 255, 255); color: #44362f; font-weight: 400; font-style: normal; font-size: 15px;">← Previous</button> <button id="current-week" data-template-id="current-week-label" type="button" class="canva-button px-3 py-2 border rounded-lg bg-white" style="background: rgb(255, 255, 255); color: #44362f; font-weight: 400; font-style: normal; font-size: 15px;">This week</button> <button id="detail-next-week" data-template-id="next-week-label" type="button" class="canva-button px-3 py-2 border rounded-lg bg-white" style="background: rgb(255, 255, 255); color: #44362f; font-weight: 400; font-style: normal; font-size: 15px;">Next →</button>
      </div>
     </header>
+    <a href="#page-7" class="finance-shortcut" onclick="if(window.ultimateBudget){event.preventDefault();window.ultimateBudget.open('today');}"><span><strong>This week's spending is in Finances</strong><span>Open Today: what's left this week, the daily log and the day-by-day chart.</span></span><span aria-hidden="true">→</span></a>
     <section aria-labelledby="week-heading">
      <div class="flex flex-wrap items-end justify-between gap-3 mb-4">
       <div>
@@ -1302,7 +1303,7 @@
       <div class="calendar-event-list"></div>
       <p data-template-id="events-empty" class="canva-text muted leading-relaxed" style="font-size:12px">Connect Google Calendar to view events.</p>
      </section>
-     <section class="day-section" aria-label="Daily spending">
+     <section class="day-section legacy-finance" aria-label="Daily spending" hidden>
       <p data-template-id="spending-label" class="canva-text section-label mb-2">SPENDING</p>
       <p class="spending-total display mb-3" style="font-size:23px">$0.00</p>
       <div class="spending-list mb-3"></div>
@@ -2076,9 +2077,9 @@
    <main class="max-w-7xl mx-auto px-5 sm:px-8 py-9 sm:py-12">
     <section class="rise flex flex-wrap items-end justify-between gap-6 mb-9" aria-labelledby="page-title">
      <div>
-      <p data-template-id="eyebrow" class="canva-text eyebrow text-xs font-bold text-[#fdbfce] mb-3" style="color: #fdbfce; font-weight: 700; font-style: normal; font-size: 12px;">YOUR MONEY, MONTH BY MONTH</p>
-      <h1 id="page-title" data-template-id="page-title" class="canva-text leading-tight tracking-tight" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 32px;">Monthly spending &amp; budget</h1>
-      <p data-template-id="intro" class="canva-text mt-3 text-[#807672] max-w-xl" style="color: #807672; font-weight: 400; font-style: normal; font-size: 16px;">Set category budgets and see how your spending compares throughout the month.</p>
+      <p data-template-id="eyebrow" class="canva-text eyebrow text-xs font-bold text-[#fdbfce] mb-3" style="color: #fdbfce; font-weight: 700; font-style: normal; font-size: 12px;">YOUR QUARTERLY NOTEBOOK</p>
+      <h1 id="page-title" data-template-id="page-title" class="canva-text leading-tight tracking-tight" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 32px;">Goals, wins &amp; ideas</h1>
+      <p data-template-id="intro" class="canva-text mt-3 text-[#807672] max-w-xl" style="color: #807672; font-weight: 400; font-style: normal; font-size: 16px;">Quarterly goals, the good stuff and the parking lot. Spending, budgets and balances now live in Finances.</p>
      </div><button id="quarter-open-form" data-template-id="add-button" type="button" class="canva-button bg-[#44362f] text-white rounded-xl px-5 py-3 font-semibold hover:bg-[#44362f] transition flex items-center gap-2" style="background: rgb(68, 54, 47); color: rgb(255, 255, 255);"><i data-lucide="plus" class="w-4 h-4" aria-hidden="true"></i><span data-template-id="add-button-text" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 16px;">Add an entry</span></button>
     </section>
     <div class="rise flex flex-wrap items-center justify-between gap-4 mb-6" style="animation-delay:.08s">
@@ -2091,7 +2092,9 @@
      </div>
      <div id="message" role="status" aria-live="polite" class="text-sm font-medium text-[#44362f]"></div>
     </div>
-    <section aria-labelledby="monthly-budget-heading" class="surface mb-9 rounded-2xl bg-white p-5 sm:p-7 rise" style="animation-delay:.11s">
+    <a href="#page-7" class="finance-shortcut" onclick="if(window.ultimateBudget){event.preventDefault();window.ultimateBudget.open('month');}"><span><strong>Monthly spending &amp; budgets moved to Finances</strong><span>Open the Month view: category budgets against actual spending.</span></span><span aria-hidden="true">→</span></a>
+    <a href="#page-7" class="finance-shortcut" onclick="if(window.ultimateBudget){event.preventDefault();window.ultimateBudget.open('accounts');}"><span><strong>Balances moved to Finances</strong><span>Open Accounts: checking, savings buckets and cards owed.</span></span><span aria-hidden="true">→</span></a>
+    <section aria-labelledby="monthly-budget-heading" hidden class="legacy-finance surface mb-9 rounded-2xl bg-white p-5 sm:p-7 rise" style="animation-delay:.11s">
      <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
        <h2 id="monthly-budget-heading" class="text-2xl font-semibold">Spending vs. budget</h2>
@@ -2112,7 +2115,7 @@
      </form>
      <p id="budget-status" class="mt-3 min-h-5 text-sm" role="status" aria-live="polite"></p>
     </section>
-    <section aria-labelledby="money-heading" class="rise mb-9" style="animation-delay:.14s">
+    <section aria-labelledby="money-heading" hidden class="legacy-finance rise mb-9" style="animation-delay:.14s">
      <div class="flex items-baseline justify-between mb-4">
       <h2 id="money-heading" data-template-id="money-heading" class="canva-text" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 24px;">Money at a glance</h2><span data-template-id="money-caption" class="canva-text text-xs text-[#807672]" style="color: #807672; font-weight: 400; font-style: normal; font-size: 12px;">Latest balances · all quarters</span>
      </div>
@@ -2202,7 +2205,7 @@
       </div><button id="close-form" type="button" aria-label="Close entry form" class="rounded-lg p-2 hover:bg-[#eff1f6]"><i data-lucide="x" class="w-5 h-5"></i></button>
      </div>
      <form id="entry-form" class="space-y-4">
-      <div><label data-template-id="type-label" class="canva-text block text-sm font-semibold mb-2" for="entry-type" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 14px;">Entry type</label><select id="entry-type" class="field" required=""><option value="goal">Quarterly goal</option><option value="credit">Credit card</option><option value="savings">Savings bucket</option><option value="checking">Checking account</option><option value="achievement">Achievement</option><option value="idea">Parking lot idea</option></select>
+      <div><label data-template-id="type-label" class="canva-text block text-sm font-semibold mb-2" for="entry-type" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 14px;">Entry type</label><select id="entry-type" class="field" required=""><option value="goal">Quarterly goal</option><option hidden disabled value="credit">Credit card</option><option hidden disabled value="savings">Savings bucket</option><option hidden disabled value="checking">Checking account</option><option value="achievement">Achievement</option><option value="idea">Parking lot idea</option></select>
       </div>
       <div id="category-field"><label data-template-id="category-label" class="canva-text block text-sm font-semibold mb-2" for="entry-category" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 14px;">Category</label><select id="entry-category" class="field"><option value="Finance">Finance</option><option value="Health">Health</option><option value="Business">Business</option><option value="Personal">Personal</option></select>
       </div>
@@ -2941,7 +2944,7 @@
 
   <div id="page-7" class="budget-page">
    <header class="budget-page-intro">
-    <div class="eyebrow">Paycheck budget</div>
+    <div class="eyebrow">Finances</div>
     <h1>Money, one paycheck at a time.</h1>
     <p>What's left this week, every transaction, monthly budgets, savings goals and balances.</p>
    </header>

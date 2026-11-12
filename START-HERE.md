@@ -8,9 +8,11 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 
 | Page | What it is |
 |---|---|
-| Dashboard | Tasks, notes, text-reminder settings, plus a new **Budget** card showing what's left to spend this week |
-| Week At A Glance, Week in Depth, Habit Tracker, Monthly Spending, Book Tracker | Same as Daymark |
-| **Budget** (new) | The whole Paycheck Budget app, with Today · Activity · Month · Plan · Accounts tabs, the **+** button, transfers, goals, balances and backup |
+| Dashboard | Tasks, notes, text-reminder settings, and a **Finances** card showing what's left to spend this week |
+| Week At A Glance, Habit Tracker, Book Tracker | Same as Daymark |
+| Week in Depth | Calendar events and habits for each day. Daily spending moved to **Finances → Today** |
+| **Finances** | The whole Paycheck Budget app, with its **Today · Activity · Month · Plan · Accounts** tabs at the top (shown only on this page), the **+** button, transfers, goals, balances and backup |
+| Quarterly (was Monthly Spending) | Quarterly goals, wins and the parking lot. "Spending vs. budget" moved to **Finances → Month**, and "Money at a glance" moved to **Finances → Accounts** |
 | Text Reminders | SMS opt-in page (now branded Ultimate Dashboard) |
 
 ## What changed from the originals
@@ -112,5 +114,5 @@ The storage, setup screen and theme changes live in `tools/budget-storage.js` an
 ## Preview locally
 Run `python3 -m http.server` in this folder, then open http://localhost:8000.
 
-## Known overlap (next phase)
-**Monthly Spending** and **Week in Depth** still keep their own expense and account records, separate from the Budget page. The next step is to make the Budget page the single source of truth: show its transactions on Week in Depth and its accounts on Monthly Spending, then retire the duplicate expense forms.
+## Old money views
+Daymark's weekly spending (Week in Depth), monthly budget chart and account balances (Monthly Spending) are hidden rather than deleted, because the page scripts still look for them. Finances is now the only place to log spending and see budgets and balances. Daymark's Credit card, Savings bucket and Checking account entry types are hidden from the Quarterly "Add an entry" form.

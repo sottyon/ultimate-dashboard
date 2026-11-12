@@ -31,3 +31,13 @@ body .headline, body .display, body .stat-number, body .dashboard-brand, body .b
 .budget-page-intro p { margin: 0; color: #807672; }
 budget-app { display: block; max-width: 760px; margin: 0 auto; }
 .overview-budget-card { background: #fdbfce !important; border-color: #fdbfce !important; }
+
+/* Finances replaces the old weekly and monthly money views */
+.legacy-finance, .legacy-finance-card { display: none !important; }
+.finance-shortcut { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 14px; padding: 16px 20px;
+  border-radius: 18px; background: #fdbfce; color: #44362f; text-decoration: none; transition: transform .15s ease; }
+.finance-shortcut:hover { transform: translateY(-1px); }
+.finance-shortcut strong { display: block; font-weight: 672; font-size: 16px; }
+.finance-shortcut span span { display: block; font-size: 14px; color: #6b5d55; margin-top: 2px; }
+.finance-shortcut > span[aria-hidden] { font-size: 22px; font-weight: 672; }
+#page-4 .finance-shortcut:last-of-type { margin-bottom: 36px; }

@@ -63,7 +63,7 @@ tabs = body[body.index('<nav class="tabs"'):body.index('</nav>')+6]
 must(tabs, "tabs markup")
 body = body.replace(tabs, '')
 body = body.replace('<div class="wrap" id="view"></div>',
-  '<div class="bud-head"><h2 class="bud-title">Budget</h2><div class="pill" id="syncPill">Connecting…</div></div>\n' + tabs + '\n<div class="wrap" id="view"></div>')
+  '<div class="bud-head"><h2 class="bud-title">Finances</h2><div class="pill" id="syncPill">Connecting…</div></div>\n' + tabs + '\n<div class="wrap" id="view"></div>')
 
 # ---------------- JS ----------------
 s_start = src.index("<script>", src.index("<body>")) + 8
