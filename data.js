@@ -523,6 +523,19 @@
         return { isOk: false, session: null, error };
       }
     },
+    async callFunction(name, body) {
+      // calls a Supabase Edge Function with the signed-in session attached
+      const { data, error } = await getClient().functions.invoke(name, { body });
+      if (error) {
+        let detail = null;
+        try { detail = await error.context?.json?.(); } catch (_) { /* not JSON */ }
+        const failure = new Error(detail?.message || detail?.error || error.message || 'The request failed.');
+        failure.code = detail?.error || null;
+        failure.status = error.context?.status || null;
+        throw failure;
+      }
+      return data;
+    },
     async getTaskReminder() {
       const { data, error } = await getClient().rpc('get_dashboard_task_reminder');
       if (error) throw error;

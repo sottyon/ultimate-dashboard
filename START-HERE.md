@@ -89,12 +89,16 @@ Plan on about 30 minutes for steps 1 to 7. Steps 8 and 9 are optional.
 5. Prefer to start over? Tap **Start a blank budget** instead.
 6. On your iPhone, open the site in Safari, tap **Share → Add to Home Screen**, and name it **Ultimate**.
 
-### 8. Google Calendar (optional)
-1. Go to https://console.cloud.google.com/ and create a project called `ultimate-dashboard`.
-2. Go to **APIs & Services → Library**, search for **Google Calendar API**, and click **Enable**.
-3. Go to **APIs & Services → OAuth consent screen**. Choose **External**, fill in the app name (Ultimate Dashboard) and your email, and add yourself as a **Test user**.
-4. Go to **APIs & Services → Credentials → Create credentials → OAuth client ID → Web application**. Under **Authorized JavaScript origins**, add `https://sottyon.github.io` (no `/ultimate-dashboard/` path). Click **Create**.
-5. Copy the **Client ID** (not the secret) into `googleClientId` in `supabase-config.js` and commit.
+### 8. Google Calendar (stays connected)
+The calendar connects once and stays connected on every device and visit. The `google-calendar` Edge Function in Supabase keeps Google's long-lived key in a locked table (`google_calendar_tokens`, see `supabase/google-calendar-tokens.sql`) and gives the dashboard a fresh calendar pass whenever it needs one. Both are already set up in the `ultimate-dashboard` project.
+
+One-time setup:
+1. **Supabase secret:** go to Supabase → **Edge Functions** → **Secrets** (the left menu under Edge Functions). Add a secret named exactly `GOOGLE_CLIENT_SECRET`, with the **Client secret** from your Google OAuth web client as its value, and click **Save**. This is not the same place as **Authentication → Sign In / Providers → Google**.
+2. **Google redirect address:** in Google Cloud go to **Google Auth Platform → Clients** (or **APIs & Services → Credentials**), open your web client, and under **Authorized redirect URIs** add `https://sottyon.github.io/ultimate-dashboard/` (with the trailing slash). Keep `https://sottyon.github.io` under **Authorized JavaScript origins**. Click **Save**.
+3. **Audience:** in **Google Auth Platform → Audience**, the user type should be **External**. Click **Publish app** so the status is **In production**. In Testing, Google expires the connection after 7 days.
+4. **Connect:** on the dashboard, click **Connect Google Calendar**. You go to Google; choose your account. On "Google hasn't verified this app", click **Continue**, allow calendar access, and you return to the dashboard.
+
+If the calendar ever says access expired (for example after you remove the app at myaccount.google.com/connections or change your Google password), click **Connect Google Calendar** once more.
 
 ### 9. Daily task texts (optional; needs Twilio)
 1. Before turning this on, open `terms.html` and `privacy.html` and replace both `CONTACT_EMAIL_HERE` placeholders with the email you want people to use. The effective date is set to November 11, 2026. These pages are a starting point, not legal advice.

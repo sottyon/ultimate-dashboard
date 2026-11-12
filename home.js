@@ -149,6 +149,8 @@
         return `<a href="#page-6" class="home-event"><span class="home-time">${esc(t)}</span><span>${esc(e.summary || 'Busy')}</span></a>`;
       }).join('') + (todays.length > 4 ? `<a href="#page-6" class="home-more-link">+${todays.length - 4} more</a>` : '') : '<p class="home-empty">Nothing on the calendar today.</p>');
     }
+    const note = cal?.notice?.();
+    if (note) { const el = $('home-events'); if (el) { el.insertAdjacentHTML('afterbegin', `<p class="home-empty home-cal-note">${esc(note)}</p>`); el.__h = null; } }
     const day = window.ultimateBudget?.day?.(today);
     const weekday = parse(today).toLocaleDateString('en-US', { weekday: 'long' });
     if (!day) { setText('home-spend-title', `${weekday} spending`); setHTML('home-spend-body', '<a href="#page-7" class="home-empty">Set up Finances to see spending →</a>'); return; }
@@ -277,7 +279,8 @@
   function start() {
     bindSearch();
     window.addEventListener('ultimate-budget-change', schedule);
-    window.googleCalendar?.subscribe?.(() => loadEvents());
+    window.googleCalendar?.subscribe?.(change => { if (change !== 'notice') loadEvents(); else schedule(); });
+    loadEvents();   // the calendar may already be connected before this page starts listening
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { schedule(); loadEvents(); } });
     setInterval(schedule, 60000);
     schedule();

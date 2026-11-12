@@ -130,6 +130,12 @@
       new MutationObserver(schedule).observe(grid, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-date'] });
     }
     window.addEventListener('ultimate-budget-change', schedule);
+    // show Google Calendar connection messages (e.g. "access expired") under the Connect button
+    window.googleCalendar?.subscribe?.(() => {
+      const note = window.googleCalendar.notice?.();
+      const status = document.getElementById('detail-calendar-status');
+      if (note && status) { status.textContent = note; status.style.color = '#8a6a6b'; }
+    });
     schedule();
     connect().catch(() => {});
   }
