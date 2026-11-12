@@ -8,9 +8,9 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 
 | Page | What it is |
 |---|---|
-| Dashboard | Tasks, notes, text-reminder settings, and a **Finances** card showing what's left to spend this week |
+| Dashboard | Tasks (with an optional due day and time), notes, text-reminder settings, and a **Finances** card showing what's left to spend this week |
 | Week At A Glance, Habit Tracker, Book Tracker | Same as Daymark |
-| Week in Depth | Calendar events and habits for each day. Daily spending moved to **Finances → Today** |
+| Week in Depth | For each day: **tasks due** (with time), **Google Calendar events**, **habits** ticked in Habit Tracker or logged on the card, and a **"Monday Spending Overview"** drop-down with that day's total and transactions from Finances |
 | **Finances** | The whole Paycheck Budget app, with its **Today · Activity · Month · Plan · Accounts** tabs at the top (shown only on this page), the **+** button, transfers, goals, balances and backup |
 | Quarterly (was Monthly Spending) | Quarterly goals, wins and the parking lot. "Spending vs. budget" moved to **Finances → Month**, and "Money at a glance" moved to **Finances → Accounts** |
 | Text Reminders | SMS opt-in page (now branded Ultimate Dashboard) |

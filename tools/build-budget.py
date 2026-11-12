@@ -141,7 +141,7 @@ function boot(host){
 
 __JS__
 
-  window.ultimateBudget = { summary: budgetSummary, open: tabName => { if (tabName){ tab = tabName; render(); } host.scrollIntoView({ block: "start" }); } };
+  window.ultimateBudget = { summary: budgetSummary, day: budgetDay, addFor: dateStr => { tab = "today"; weekOffset = weekIdxOf(dateStr) - weekIdxOf(todayISO()); dayPick = dateStr; render(); host.scrollIntoView({ block: "start" }); }, open: tabName => { if (tabName){ tab = tabName; render(); } host.scrollIntoView({ block: "start" }); } };
   window.addEventListener("ultimate-budget-change", fabState);
   fabState();
   window.dispatchEvent(new CustomEvent("ultimate-budget-change"));

@@ -1,7 +1,7 @@
 const CACHE_NAME = 'ultimate-shell-v1';
 const VENDOR_CACHE_NAME = 'ultimate-vendor-v1';
 const APP_ROOT = new URL('./', self.registration.scope);
-const SHELL_FILES = ['./theme.css', './budget.js', './data.js', './google-calendar.js', './supabase-config.js', './fonts/cause-latin-wght-normal.woff2', './fonts/cause-latin-ext-wght-normal.woff2'];
+const SHELL_FILES = ['./theme.css', './budget.js', './week-in-depth.js', './data.js', './google-calendar.js', './supabase-config.js', './fonts/cause-latin-wght-normal.woff2', './fonts/cause-latin-ext-wght-normal.woff2'];
 const VENDOR_SCRIPTS = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js',

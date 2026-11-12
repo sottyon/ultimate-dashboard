@@ -310,6 +310,10 @@
           </div>
           <div><label for="task-category" data-template-id="category-label" class="canva-text">Task type</label><select id="task-category" class="canva-dropdown"><option value="Work">Work</option><option value="Personal">Personal</option></select>
           </div>
+          <div><label for="task-due-date" class="canva-text">Due day <span class="optional-hint">(optional)</span></label><input id="task-due-date" class="canva-input" type="date">
+          </div>
+          <div><label for="task-due-time" class="canva-text">Due time <span class="optional-hint">(optional)</span></label><input id="task-due-time" class="canva-input" type="time">
+          </div>
           <div><label for="task-priority" data-template-id="priority-label" class="canva-text">Priority</label><select id="task-priority" class="canva-dropdown"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select>
           </div>
          </div>
@@ -494,7 +498,7 @@
         const categoryName = r.category === 'Work' ? 'Work' : 'Personal';
         category.textContent = categoryName;
         category.classList.toggle('personal', categoryName === 'Personal');
-        const metaText = new Date(r.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric'});
+        const metaText = window.taskDueLabel?.(r) || new Date(r.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric'});
         if (meta.textContent !== metaText) meta.textContent = metaText;
         if (badge.textContent !== r.priority) badge.textContent = r.priority;
         badge.className = 'canva-tag priority ' + (r.priority || '').toLowerCase();
@@ -561,7 +565,9 @@
       try {
         const result = await window.dataSdk.create({
           type:'task', title, completed:false, priority:$('task-priority').value,
-          category:$('task-category').value, created_at:new Date().toISOString()
+          category:$('task-category').value, created_at:new Date().toISOString(),
+          ...($('task-due-date').value ? { due_date:$('task-due-date').value } : {}),
+          ...($('task-due-time').value ? { due_time:$('task-due-time').value } : {})
         });
         if (result.isOk) { $('task-form').reset(); $('form-panel').classList.add('hidden'); message(result.queued ? 'Task saved on this device; waiting to sync.' : 'Task added.',true); }
         else message('Could not save your task. Please try again.');
@@ -1265,7 +1271,7 @@
      <div>
       <p data-template-id="page-kicker" class="canva-text section-label mb-2" style="color: #44362f; font-weight: 700; font-style: normal; font-size: 11px;">YOUR WEEK, DAY BY DAY</p>
       <h1 data-template-id="page-title" class="canva-text display leading-tight" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 30px;">A closer look at your week.</h1>
-      <p data-template-id="page-description" class="canva-text muted mt-2" style="color: #807672; font-weight: 400; font-style: normal; font-size: 15px;">Events and habits, in one easy-to-scan place. Spending lives in Finances.</p>
+      <p data-template-id="page-description" class="canva-text muted mt-2" style="color: #807672; font-weight: 400; font-style: normal; font-size: 15px;">Tasks, events, habits and spending, day by day.</p>
      </div>
      <div class="flex items-center flex-wrap gap-2" aria-label="Week navigation"><button id="detail-previous-week" data-template-id="previous-week-label" type="button" class="canva-button px-3 py-2 border rounded-lg bg-white" style="background: rgb(255, 255, 255); color: #44362f; font-weight: 400; font-style: normal; font-size: 15px;">← Previous</button> <button id="current-week" data-template-id="current-week-label" type="button" class="canva-button px-3 py-2 border rounded-lg bg-white" style="background: rgb(255, 255, 255); color: #44362f; font-weight: 400; font-style: normal; font-size: 15px;">This week</button> <button id="detail-next-week" data-template-id="next-week-label" type="button" class="canva-button px-3 py-2 border rounded-lg bg-white" style="background: rgb(255, 255, 255); color: #44362f; font-weight: 400; font-style: normal; font-size: 15px;">Next →</button>
      </div>
@@ -1298,6 +1304,11 @@
      <p class="day-date muted mt-1" style="font-size:12px"></p>
     </header>
     <div class="day-body">
+     <section class="day-section wid-tasks" aria-label="Tasks due">
+      <p class="canva-text section-label mb-2">TASKS</p>
+      <p class="wid-tasks-empty muted mb-1" style="font-size:12px">No tasks due.</p>
+      <ul class="wid-task-list"></ul>
+     </section>
      <section class="day-section" aria-label="Calendar events">
       <p data-template-id="events-label" class="canva-text section-label mb-3">CALENDAR EVENTS</p>
       <div class="calendar-event-list"></div>
@@ -1319,12 +1330,17 @@
       </form>
      </section>
      <section class="day-section" aria-label="Logged habits">
-      <p data-template-id="habits-label" class="canva-text section-label mb-2">HABITS LOGGED</p>
-      <p data-template-id="habits-empty" class="canva-text muted mb-3" style="font-size:12px">Nothing logged yet.</p>
+      <p data-template-id="habits-label" class="canva-text section-label mb-2">HABITS</p>
+      <ul class="wid-habit-list"></ul>
+      <p data-template-id="habits-empty" class="canva-text muted mb-3 wid-logged-empty" style="font-size:12px">Nothing logged yet.</p>
       <div class="habits-list mb-3"></div>
       <form class="habit-form flex gap-1.5"><label class="sr-only habit-input-label" for="unused-habit">Habit name</label> <input class="habit-input small-control" type="text" maxlength="80" required="" placeholder="Habit name" aria-label="Habit name"> <button data-template-id="habit-add" type="submit" class="canva-button action">Log</button>
       </form>
      </section>
+     <details class="day-section wid-spend">
+      <summary><span class="wid-spend-title">Spending Overview</span><span class="wid-spend-total">$0.00</span></summary>
+      <div class="wid-spend-body"></div>
+     </details>
     </div>
    </article>
   </template>
@@ -2951,6 +2967,7 @@
    <budget-app></budget-app>
   </div>
   <script src="./budget.js"></script>
+  <script src="./week-in-depth.js"></script>
   <script>
   (() => {
     function paintBudgetCard(){

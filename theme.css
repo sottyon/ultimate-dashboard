@@ -41,3 +41,41 @@ budget-app { display: block; max-width: 760px; margin: 0 auto; }
 .finance-shortcut span span { display: block; font-size: 14px; color: #6b5d55; margin-top: 2px; }
 .finance-shortcut > span[aria-hidden] { font-size: 22px; font-weight: 672; }
 #page-4 .finance-shortcut:last-of-type { margin-bottom: 36px; }
+
+/* Week in Depth: tasks, tracked habits, spending overview */
+.wid-task-list, .wid-habit-list, .wid-txn-list { list-style: none; margin: 0 0 8px; padding: 0; }
+.wid-task, .wid-habit { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-top: 1px solid #eff1f6; font-size: 13px; color: #44362f; }
+.wid-task:first-child, .wid-habit:first-child { border-top: 0; }
+.wid-check { flex: none; width: 18px; height: 18px; border-radius: 9px; border: 1.5px solid #a29a97; display: grid; place-items: center; font-size: 11px; line-height: 1; }
+.wid-check.on, .wid-task.done .wid-check { background: #d0efef; border-color: #44362f; color: #44362f; }
+.wid-task-main, .wid-txn-main { display: flex; flex-direction: column; min-width: 0; }
+.wid-task-title { font-weight: 500; overflow-wrap: anywhere; }
+.wid-task.done .wid-task-title { text-decoration: line-through; color: #a29a97; }
+.wid-task-meta, .wid-txn-meta { font-size: 11px; color: #807672; }
+.wid-spend { border-radius: 14px; background: #fff; border: 1px solid #dbdfeb; padding: 0; overflow: hidden; }
+.wid-spend > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 12px; background: #fdbfce; color: #44362f; font-size: 12px; font-weight: 672; letter-spacing: .02em; }
+.wid-spend > summary::-webkit-details-marker { display: none; }
+.wid-spend > summary::after { content: "▾"; font-size: 12px; transition: transform .15s ease; }
+.wid-spend[open] > summary::after { transform: rotate(180deg); }
+.wid-spend-title { flex: 1; }
+.wid-spend-total { font-size: 14px; font-weight: 672; font-variant-numeric: tabular-nums; }
+.wid-spend.over .wid-spend-total::before { content: "▲ "; font-size: 10px; }
+.wid-spend-body { padding: 10px 12px 12px; }
+.wid-spend-stats { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: #807672; margin-bottom: 8px; }
+.wid-spend-stats b { color: #44362f; font-weight: 672; }
+.wid-txn { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid #eff1f6; font-size: 13px; }
+.wid-txn:first-child { border-top: 0; }
+.wid-txn-title { overflow-wrap: anywhere; }
+.wid-txn-amt { font-weight: 672; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wid-txn-amt.refund { color: #807672; }
+.wid-note { font-size: 12px; color: #807672; margin: 0 0 8px; }
+.wid-add { width: 100%; border: 0; border-radius: 10px; padding: 8px 10px; background: #d0efef; color: #44362f; font-size: 12px; font-weight: 672; cursor: pointer; }
+.optional-hint { font-weight: 400; color: #807672; font-size: .85em; }
+#task-form input[type="date"], #task-form input[type="time"] {
+  width: 100%; min-height: 46px; border: 1px solid #dbdfeb; border-radius: 12px; padding: 10px 12px;
+  background: #fff; color: #44362f; font: inherit; }
+#task-form input[type="date"]:focus, #task-form input[type="time"]:focus { outline: 2px solid #fdbfce; border-color: #fdbfce; }
+/* task form: title on its own row, then two fields per row */
+#task-form .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#task-form .form-grid > div:first-child { grid-column: 1 / -1; }

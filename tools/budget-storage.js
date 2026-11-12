@@ -161,3 +161,16 @@ function budgetSummary(){
   const wk = weekByIdx(idx, sched), sp = spentBy(wk.start, wk.end);
   return { left: wk.total - sp.total, spent: sp.total, total: wk.total, start: wk.start, end: wk.end, money };
 }
+
+/* ---------- one day's activity, for the Week in Depth cards ---------- */
+function budgetDay(dateStr){
+  if (!S) return null;
+  const txns = S.txns.filter(t => t.date === dateStr)
+    .sort((a, b) => (a.createdAt || a.updatedAt || "").localeCompare(b.createdAt || b.updatedAt || ""))
+    .map(t => ({ id: t.id, desc: t.desc || t.category, category: t.category, account: t.account, amount: +t.amount, note: t.note || "", spend: isSpend(t), emoji: EMOJI[t.category] || "•" }));
+  const spent = spentBy(dateStr, dateStr).total;
+  const bills = spentBy(dateStr, dateStr, t => !isSpend(t)).total;
+  const sched = schedule(60), idx = weekIdxOf(dateStr);
+  const dailyBudget = idx >= 0 ? weekByIdx(idx, sched).total / 7 : null;
+  return { date: dateStr, spent, bills, dailyBudget, txns, money };
+}
