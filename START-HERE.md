@@ -8,7 +8,7 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 
 | Page | What it is |
 |---|---|
-| Dashboard | Task counts, **Finances**, **Workouts**, Habit Tracker, Book Tracker and **Tasks** summary cards, and text-reminder settings |
+| Dashboard | Liquid Glass home page:<br>• Greeting with today's tasks due and money left this week<br>• **Search** across tabs, tasks, habits, books and workouts<br>• **Bell** button that opens text reminders, and **+** button that adds a new task<br>• **Finances** ring (share of this week's budget spent)<br>• **Week in Depth** chart (tasks finished vs. spending, Mon–Sun)<br>• **Habits** ring and daily dots<br>• **Tasks** ring with All / Completed / Still to do and a checklist you can tick<br>• **Today**: Google Calendar events and a drop-down of today's spending<br>• **Notes** and the daily-text toggle<br>• **Workouts** and **Book Tracker** rings<br>• The iPhone tip<br>Every card links to its tab. The greeting name is `displayName` in `supabase-config.js` |
 | **Tasks** | Task checklist with Work/Personal filters, **New task** (optional due day and time), the progress chart and notes |
 | **Workout Tracker** (replaces Week At A Glance) | Tap what you did each day: Back/Biceps, Glutes, Legs, Hot Pilates, Reformer Pilates, Hot Yoga, Cycle, Stair Master, Core or Rest day. Choosing **Rest day** clears that day's workouts, and choosing a workout clears Rest day. Shows weekly totals and lets you move between weeks |
 | Week in Depth | For each day: **tasks due** (with time), **Google Calendar events**, **habits** ticked in Habit Tracker or logged on the card, and a **"Monday Spending Overview"** drop-down with that day's total and transactions from Finances |

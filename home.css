@@ -1,0 +1,198 @@
+/* Ultimate Dashboard · home page (Liquid Glass layout from the design spec)
+   Cards: Finances (pink) · Week in Depth wave (white) · Habits (aqua)
+          Tasks (white) · Today (white) · Notes & reminders (mist)
+          Workouts · Book Tracker, then the iPhone tip. */
+
+.home-main { padding-top: 32px !important; }
+.home { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; color: #44362f; }
+.home .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- header ---------- */
+.home-head { display: flex; align-items: center; gap: 12px; padding: 8px 0; flex-wrap: wrap; }
+.home-greet { flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.home-greet .eyebrow { margin: 0; }
+.home-greeting { margin: 0; font-size: 34px; line-height: 40px; font-weight: 672 !important; letter-spacing: -.02em; }
+.home-subline { margin: 0; font-size: 14px; line-height: 20px; opacity: .65; }
+.home-edit { margin: 6px 0 0 !important; font-size: 13px !important; line-height: 18px; font-weight: 672 !important; letter-spacing: .02em; color: #44362f; }
+.home-greet .lead { margin: 0 !important; font-size: 13px; opacity: .6; }
+.home-actions { display: flex; align-items: center; gap: 12px; flex: 0 1 auto; }
+.home-search { position: relative; display: flex; align-items: center; gap: 8px; width: 340px; max-width: 100%; height: 50px; padding: 0 16px; border-radius: 999px;
+  background: var(--g-raised, none), #fff; box-shadow: var(--g-raised-shadow, 0 1px 3px rgba(0,0,0,.1)); }
+.home-search-icon svg { width: 22px; height: 22px; display: block; }
+.home-search input { flex: 1; min-width: 0; border: 0 !important; outline: 0; background: transparent !important; box-shadow: none !important; font: inherit; font-size: 14px; color: #44362f; padding: 0 !important; height: 100%; border-radius: 0 !important; }
+.home-search input::placeholder { color: #44362f; opacity: .6; }
+.home-search-results { position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 50; list-style: none; margin: 0; padding: 6px;
+  background: rgba(255,255,255,.96); border-radius: 20px; box-shadow: 0 16px 40px -8px rgba(68,54,47,.18), inset 0 0 0 1.5px #fff; }
+.home-search-results a { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; color: #44362f; text-decoration: none; font-size: 14px; }
+.home-search-results a:hover, .home-search-results a:focus { background: #fdbfce; outline: none; }
+.home-search-results small { opacity: .6; font-size: 12px; white-space: nowrap; }
+.home-sr-empty { padding: 10px 12px; font-size: 13px; opacity: .6; }
+
+.icon-bubble { flex: none; width: 52px; height: 52px; border-radius: 999px; display: grid; place-items: center; color: #44362f; text-decoration: none;
+  background: var(--g-raised, none), #fff; box-shadow: var(--g-raised-shadow, 0 1px 3px rgba(0,0,0,.1)); transition: transform .15s ease; }
+.icon-bubble:hover { transform: translateY(-1px); }
+.icon-bubble svg { width: 24px; height: 24px; }
+.icon-bubble.sm { width: 42px; height: 42px; }
+.icon-bubble.sm svg { width: 19px; height: 19px; }
+.icon-bubble.pink { background-color: #fdbfce; } .icon-bubble.aqua { background-color: #d0efef; }
+.icon-bubble.mist { background-color: #dbdfeb; } .icon-bubble.white { background-color: #fff; }
+
+/* ---------- rows and cards ---------- */
+.home-row { display: grid; gap: 20px; align-items: stretch; }
+.home-row-1 { grid-template-columns: minmax(0, 340fr) minmax(0, 520fr) minmax(0, 220fr); }
+.home-row-2 { grid-template-columns: minmax(0, 400fr) minmax(0, 340fr) minmax(0, 340fr); }
+.home-row-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.home-card { min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 28px;
+  background: var(--g-pane, none), #fff; box-shadow: var(--g-pane-shadow, 0 1px 3px rgba(0,0,0,.08)); }
+.home-card.pink { background-color: #fdbfce; } .home-card.aqua { background-color: #d0efef; }
+.home-card.mist { background-color: #dbdfeb; } .home-card.white { background-color: #fff; }
+.home-row-1 > .home-card { min-height: 310px; }
+.home-row-2 > .home-card { min-height: 380px; }
+.home-card-head { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; border-radius: 16px; }
+.home-card-head:hover .home-card-title { text-decoration: underline; text-underline-offset: 3px; }
+.home-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home-card-title { margin: 0; font-size: 20px; line-height: 26px; font-weight: 672 !important; }
+.home-caption { font-size: 12px; line-height: 16px; opacity: .6; }
+.home-label { font-size: 14px; line-height: 18px; font-weight: 500; }
+.home-big { font-size: 34px; line-height: 40px; font-weight: 672; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.home-empty { font-size: 13px; opacity: .7; color: inherit; text-decoration: none; margin: 0; }
+a.home-empty:hover { text-decoration: underline; }
+.home-more-link { font-size: 12px; opacity: .7; color: inherit; text-decoration: none; }
+
+/* completion rings */
+.home-ring { position: relative; flex: none; width: 132px; height: 132px; }
+.home-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.home-ring .ring-track { fill: #fff; stroke: rgba(255,255,255,.9); stroke-width: 14; }
+.home-ring .ring-fill { fill: none; stroke: url(#home-ring-grad); stroke-width: 14; stroke-linecap: round; transition: stroke-dasharray .5s ease; }
+.home-ring.over .ring-fill { stroke: #8a6a6b; }
+.home-ring .ring-pct { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; line-height: 26px; font-weight: 672; font-variant-numeric: tabular-nums; }
+.home-card.white .home-ring .ring-track { fill: #f9f8fa; stroke: #eff1f6; }
+.home-habits .home-ring, .home-tasks .home-ring, .home-workouts .home-ring, .home-books .home-ring { width: 88px; height: 88px; }
+.home-habits .home-ring .ring-pct, .home-tasks .home-ring .ring-pct, .home-workouts .home-ring .ring-pct, .home-books .home-ring .ring-pct { font-size: 17px; }
+
+/* footer links: the original overview cards, kept and restyled as glass pills */
+.home .home-foot-link.canva-card { display: flex !important; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: auto; padding: 12px 18px !important; border-radius: 999px !important;
+  background: var(--g-raised, none), #fff !important; box-shadow: var(--g-raised-shadow, none) !important; border: 0 !important;
+  color: #44362f !important; text-decoration: none; transform: none !important; }
+.home .home-foot-link.canva-card > span:first-child { display: none; }
+.home .home-foot-link.canva-card strong { margin: 0 !important; font-size: 14px !important; line-height: 18px; font-weight: 600; }
+.home .home-foot-link.canva-card > span:not(:first-child) { margin: 0 !important; font-size: 12px !important; color: #44362f !important; opacity: .6; }
+.home-foot-link:hover { filter: brightness(1.02); }
+/* Finances: the card body already shows the numbers, so its link reads "Open Finances" */
+.home-foot-link.home-btn { justify-content: center; }
+.home .home-foot-link.canva-card.home-btn > * { display: none !important; }
+.home-foot-link.home-btn::after { content: "Open Finances"; font-size: 14px; font-weight: 500; }
+.home-btn-pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 18px; border-radius: 999px; border: 0; cursor: pointer;
+  font: inherit; font-size: 14px; font-weight: 500; color: #44362f; text-decoration: none;
+  background: var(--g-raised, none), #fff; box-shadow: var(--g-raised-shadow, 0 1px 3px rgba(0,0,0,.1)); }
+.home-btn-pill svg { width: 18px; height: 18px; }
+.home-btn-pill.pink { background-color: #fdbfce; } .home-btn-pill.aqua { background-color: #d0efef; } .home-btn-pill.white { background-color: #fff; }
+
+/* Finances */
+.home-fin-body { display: flex; align-items: center; gap: 20px; }
+.home-fin-stats { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home-fin-stats #home-fin-spent { padding-top: 10px; }
+
+/* Week wave */
+.home-wave { height: 150px; border-radius: 16px; overflow: hidden; }
+.home-wave svg { width: 100%; height: 100%; display: block; }
+.home-days { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: -6px; }
+.home-days a { font-size: 12px; line-height: 16px; text-align: center; color: inherit; text-decoration: none; opacity: .6; }
+.home-days a:first-child { text-align: left; } .home-days a:last-child { text-align: right; }
+.home-days a.is-today { opacity: 1; font-weight: 672; }
+.home-legend { display: flex; gap: 18px; font-size: 12px; line-height: 16px; }
+.home-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+.dot.aqua { background: #d0efef; box-shadow: inset 0 0 0 1px #a9dede; } .dot.pink { background: #fdbfce; }
+
+/* Habits */
+.home-habit-top { display: flex; justify-content: center; }
+.home-habit-list { display: flex; flex-direction: column; gap: 10px; }
+.home-habit { display: flex; flex-direction: column; gap: 6px; color: inherit; text-decoration: none; }
+.home-habit-name { font-size: 14px; line-height: 18px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-dots { display: flex; gap: 6px; }
+.home-dots i { width: 18px; height: 18px; border-radius: 999px; background: var(--g-pane, none), rgba(255,255,255,.75); box-shadow: inset 0 0 0 1.5px #fff; }
+.home-dots i.on { background: var(--g-pane, none), #fdbfce; }
+.home-dots i.today { outline: 1.5px solid rgba(68,54,47,.45); outline-offset: 1px; }
+
+/* Tasks */
+.home-task-top { display: flex; align-items: center; gap: 16px; }
+.home .home-task-top .stats { flex: 1; margin: 0 !important; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.home .home-task-top .stat { min-height: 0 !important; padding: 10px 12px !important; border-radius: 16px !important; background: var(--g-raised, none), #f9f8fa !important; }
+.home .home-task-top .stat-label { font-size: 11px !important; }
+.home .home-task-top .stat-number { font-size: 22px !important; margin-top: 2px !important; }
+.home-task-list { display: flex; flex-direction: column; gap: 8px; }
+.home-task { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 16px; cursor: pointer;
+  background: var(--g-raised, none), #fff; box-shadow: var(--g-raised-shadow, 0 1px 3px rgba(0,0,0,.08)); }
+.home-task-text { display: flex; flex-direction: column; min-width: 0; font-size: 14px; line-height: 20px; }
+.home-task-text span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-task-text small { font-size: 11px; line-height: 14px; opacity: .6; }
+.home-task.done .home-task-text span { opacity: .55; text-decoration: line-through; }
+.home-foot-row { display: flex; gap: 10px; margin-top: auto; align-items: stretch; flex-wrap: wrap; }
+.home .home-foot-row .home-foot-link.canva-card { margin-top: 0; flex: 1; }
+
+/* Today */
+.home-events { display: flex; flex-direction: column; gap: 8px; }
+.home-event { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; font-size: 14px; line-height: 20px; color: inherit; text-decoration: none;
+  background: var(--g-pane, none), #fff; box-shadow: var(--g-pane-shadow, 0 1px 3px rgba(0,0,0,.08)); }
+.home-time { flex: none; padding: 6px 10px; border-radius: 999px; background: var(--g-pane, none), #d0efef; font-size: 13px; font-weight: 500; }
+.home-spend { margin-top: auto; padding-top: 4px; }
+.home-spend summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; font-size: 14px; line-height: 18px; font-weight: 500; }
+.home-spend summary::-webkit-details-marker { display: none; }
+.home-spend .chev { transition: transform .15s ease; }
+.home-spend[open] .chev { transform: rotate(180deg); }
+.home-spend-body { padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.home-spend-body ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow: auto; }
+.home-spend-body li { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.home-spend-body li b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Notes & reminders */
+.home-note { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; color: inherit; text-decoration: none;
+  background: var(--g-pane, none), #fff; box-shadow: var(--g-pane-shadow, 0 1px 3px rgba(0,0,0,.08)); }
+.home-note b { font-size: 14px; line-height: 18px; font-weight: 600; }
+.home-note span { font-size: 14px; line-height: 20px; opacity: .75; white-space: pre-line; }
+.home-reminder { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: inherit; text-decoration: none; }
+.toggle { flex: none; width: 60px; height: 34px; padding: 0 4px; border-radius: 999px; display: flex; align-items: center; justify-content: flex-start;
+  background: var(--g-raised, none), #fff; box-shadow: var(--g-raised-shadow, inset 0 0 0 1px #dbdfeb); transition: background-color .2s ease; }
+.toggle i { width: 26px; height: 26px; border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.08) 55%, rgba(255,255,255,.25)), #fff;
+  box-shadow: 0 10px 28px -4px rgba(68,54,47,.1), inset 0 -3px 8px rgba(68,54,47,.06), inset 0 2px 2px rgba(255,255,255,.95); transition: transform .2s ease; }
+.toggle.on { background-color: #fdbfce; }
+.toggle.on i { transform: translateX(26px); }
+/* the original "Daily task texts" panel, kept inside the card */
+.home-notes #sms-reminder-panel { margin: 0 !important; padding: 0 !important; background: none !important; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; }
+.home-notes #sms-reminder-heading { font-size: 14px !important; line-height: 18px; margin: 0; }
+.home-notes #sms-reminder-panel .panel-caption { font-size: 12px; opacity: .7; margin: 2px 0 0; }
+.home-notes #sms-reminder-status { font-size: 12px !important; margin-top: 4px !important; opacity: .8; }
+.home-notes #sms-reminder-panel .form-actions { margin-top: 10px !important; }
+.home-notes #sms-reminder-panel .canva-button { width: 100%; justify-content: center; text-align: center; }
+
+/* Workouts and books */
+.home-more { display: flex; flex-direction: column; gap: 12px; }
+.home-more-head h2 { margin: 0; font-size: 20px !important; }
+.home-more-head p { margin: 2px 0 0; font-size: 13px; opacity: .65; }
+.home-wo-body, .home-books-body { display: flex; align-items: center; gap: 18px; }
+.home-wo-mix { display: flex; flex-wrap: wrap; gap: 6px; }
+.home-chip { padding: 5px 10px; border-radius: 999px; font-size: 12px; background: var(--g-raised, none), #fdbfce; box-shadow: var(--g-raised-shadow, none); }
+.home-books-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.home-books-list a { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
+.home-books-list b { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-books-list small { font-size: 12px; opacity: .6; }
+.home .iphone-install-note { margin: 0 !important; }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 1180px) {
+  .home-row-1 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .home-row-1 .home-week { grid-column: 1 / -1; grid-row: 2; }
+  .home-row-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .home-row-2 .home-tasks { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .home-row-1, .home-row-2, .home-row-3 { grid-template-columns: minmax(0, 1fr); }
+  .home-row-1 .home-week { grid-row: auto; }
+  .home-row-1 > .home-card, .home-row-2 > .home-card { min-height: 0; }
+  .home-actions { width: 100%; }
+  .home-search { flex: 1; width: auto; }
+  .home-greeting { font-size: 28px; line-height: 34px; }
+  .home-fin-body { flex-wrap: wrap; }
+  .home-task-top { flex-wrap: wrap; }
+}

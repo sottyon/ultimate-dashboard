@@ -12,6 +12,7 @@
   <link rel="preload" href="./fonts/cause-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./theme.css">
   <link rel="stylesheet" href="./glass.css">
+  <link rel="stylesheet" href="./home.css">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -219,78 +220,136 @@
     </nav>
     <p data-template-id="sidebar-note" class="canva-text side-foot">A little clarity for everything on your plate.</p>
    </aside>
-   <main id="page-1" class="main-area">
-    <div class="content">
-     <header class="topline">
-      <div>
+   <main id="page-1" class="main-area home-main">
+    <div class="content home">
+     <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="home-ring-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fdbfce"/><stop offset="1" stop-color="rgba(68,54,47,.55)"/></linearGradient><linearGradient id="home-wave-aqua" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d0efef"/><stop offset="1" stop-color="rgba(219,223,235,.15)"/></linearGradient><linearGradient id="home-wave-pink" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(253,191,206,.9)"/><stop offset="1" stop-color="rgba(253,191,206,.15)"/></linearGradient></defs></svg>
+     <header class="home-head">
+      <div class="home-greet">
        <div id="today" class="eyebrow" aria-label="Today's date"></div>
-       <h1 data-template-id="page-title" class="canva-text headline" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 30px;">The weekly edit.</h1>
+       <h1 id="home-greeting" class="home-greeting">Hello</h1>
+       <p id="home-subline" class="home-subline"></p>
+       <p data-template-id="page-title" class="canva-text headline home-edit">The weekly edit.</p>
        <p data-template-id="page-subtitle" class="canva-text lead">Your day, at a glance. One thing at a time.</p>
-       <p class="iphone-install-note">Add Ultimate Dashboard to your iPhone: open this page in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. Your dashboard stays synced with the website.</p>
+      </div>
+      <div class="home-actions">
+       <div class="home-search">
+        <label class="sr-only" for="home-search-input">Search your dashboard</label>
+        <span class="home-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></span>
+        <input id="home-search-input" type="search" placeholder="Search tasks, habits, books, tabs…" autocomplete="off" aria-controls="home-search-results" aria-expanded="false">
+        <ul id="home-search-results" class="home-search-results" role="listbox" hidden></ul>
+       </div>
+       <a href="./sms-reminders.html" class="icon-bubble pink" aria-label="Text reminders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5h4"/></svg></a>
+       <a href="#page-8" id="home-new-task" class="icon-bubble mist" aria-label="New task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
       </div>
      </header>
-     <section aria-label="Task overview" class="stats">
+
+     <div class="home-row home-row-1">
+      <section class="home-card pink home-fin" aria-label="Finances">
+       <a class="home-card-head" href="#page-7"><span class="icon-bubble sm pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="17" height="13" rx="2.5"/><path d="M15 12.5h5.5"/><circle cx="16" cy="12.5" r=".6"/></svg></span><span class="home-titles"><h2 class="home-card-title">Finances</h2><span id="home-fin-range" class="home-caption">This week</span></span></a>
+       <div class="home-fin-body">
+        <div class="home-ring" id="home-fin-ring" role="img" aria-label="Share of this week’s budget spent"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div>
+        <div class="home-fin-stats">
+         <b id="home-fin-left" class="home-big">—</b><span class="home-caption">left to spend</span>
+         <span id="home-fin-spent" class="home-label">&nbsp;</span><span id="home-fin-next" class="home-caption"></span>
+        </div>
+       </div>
+       <a href="#page-7" class="home-foot-link canva-card home-btn overview-budget-card rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#44362f]">Finances</span>
+         <strong id="overview-budget-left" class="mt-2 block text-lg">Loading your budget…</strong>
+         <span id="overview-budget-detail" class="mt-1 block text-sm text-[#44362f]"></span>
+        </a>
+      </section>
+      <section class="home-card white home-week" aria-label="This week">
+       <a class="home-card-head" href="#page-6"><span class="icon-bubble sm aqua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="4.5" y="13.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="13.5" width="6" height="6" rx="1.5"/></svg></span><span class="home-titles"><h2 class="home-card-title">Week in Depth</h2><span id="home-week-caption" class="home-caption">Tasks finished vs. spending</span></span></a>
+       <div class="home-wave" id="home-wave" role="img" aria-label="Tasks finished and spending for each day this week"></div>
+       <div class="home-days" id="home-days"></div>
+       <div class="home-legend"><span><i class="dot aqua"></i>Tasks done</span><span><i class="dot pink"></i>Spending</span></div>
+      </section>
+      <section class="home-card aqua home-habits" aria-label="Habits">
+       <a class="home-card-head" href="#page-3"><span class="icon-bubble sm white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4c.6 4 2 5.4 7 6-5 .6-6.4 2-7 8-.6-6-2-7.4-7-8 5-.6 6.4-2 7-6z"/></svg></span><span class="home-titles"><h2 class="home-card-title">Habits</h2><span id="home-habits-caption" class="home-caption">This week</span></span></a>
+       <div class="home-habit-top"><div class="home-ring" id="home-habit-ring" role="img" aria-label="Habit check-ins against your goals this week"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div></div>
+       <div id="home-habit-list" class="home-habit-list"></div>
+       <a href="#page-3" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Habit Tracker</span>
+         <strong id="overview-habits" class="mt-2 block text-lg">Loading habits…</strong>
+         <span id="overview-habit-checkins" class="mt-1 block text-sm text-[#807672]"></span>
+        </a>
+      </section>
+     </div>
+
+     <div class="home-row home-row-2">
+      <section class="home-card white home-tasks" aria-label="Tasks">
+       <a class="home-card-head" href="#page-8"><span class="icon-bubble sm pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span><span class="home-titles"><h2 class="home-card-title">Tasks</h2><span id="home-tasks-caption" class="home-caption">Loading…</span></span></a>
+       <div class="home-task-top"><div class="home-ring" id="home-task-ring" role="img" aria-label="Tasks completed"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div><section aria-label="Task overview" class="stats">
       <article data-template-id="total-card" class="canva-card stat"><span data-template-id="total-label" class="canva-text stat-label">All tasks</span><strong id="total-count" class="stat-number">0</strong>
       </article>
       <article data-template-id="completed-card" class="canva-card stat"><span data-template-id="completed-label" class="canva-text stat-label">Completed</span><strong id="completed-count" class="stat-number">0</strong>
       </article>
       <article data-template-id="remaining-card" class="canva-card stat"><span data-template-id="remaining-label" class="canva-text stat-label">Still to do</span><strong id="remaining-count" class="stat-number">0</strong>
       </article>
-     </section>
-      <section class="mt-7" aria-labelledby="pages-overview-heading">
-       <div class="mb-4">
-        <h2 id="pages-overview-heading" class="canva-text text-xl font-semibold">Your dashboard at a glance</h2>
-        <p class="canva-text panel-caption">A quick look across all your pages.</p>
-       </div>
-       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <a href="#page-7" class="canva-card overview-budget-card rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#44362f]">Finances</span>
-         <strong id="overview-budget-left" class="mt-2 block text-lg">Loading your budget…</strong>
-         <span id="overview-budget-detail" class="mt-1 block text-sm text-[#44362f]"></span>
-        </a>
-        <a href="#page-2" class="canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Workouts</span>
-         <strong id="overview-workouts" class="mt-2 block text-lg">Loading workouts…</strong>
-         <span id="overview-workouts-detail" class="mt-1 block text-sm text-[#807672]"></span>
-         <span id="overview-week-plan" hidden></span><span id="overview-week-focus" hidden></span>
-        </a>
-        <a href="#page-6" class="canva-card legacy-finance-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Week in Depth</span>
-         <strong id="overview-week-spending" class="mt-2 block text-lg">Loading weekly spending…</strong>
-         <span id="overview-week-habits" class="mt-1 block text-sm text-[#807672]"></span>
-        </a>
-        <a href="#page-3" class="canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Habit Tracker</span>
-         <strong id="overview-habits" class="mt-2 block text-lg">Loading habits…</strong>
-         <span id="overview-habit-checkins" class="mt-1 block text-sm text-[#807672]"></span>
-        </a>
-        <a href="#page-4" class="canva-card legacy-finance-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Monthly Spending</span>
-         <strong id="overview-month-spending" class="mt-2 block text-lg">Loading monthly spending…</strong>
-         <span id="overview-month-budget" class="mt-1 block text-sm text-[#807672]"></span>
-        </a>
-        <a href="#page-5" class="canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Book Tracker</span>
-         <strong id="overview-books" class="mt-2 block text-lg">Loading bookshelf…</strong>
-         <span id="overview-books-reading" class="mt-1 block text-sm text-[#807672]"></span>
-        </a>
-         <a href="#page-8" class="canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+     </section></div>
+       <div id="home-task-list" class="home-task-list"></div>
+       <div class="home-foot-row"><a href="#page-8" class="home-btn-pill pink" id="home-add-task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New task</a><a href="#page-8" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
           <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Tasks</span>
           <strong id="overview-task-count" class="mt-2 block text-lg">Loading tasks…</strong>
           <span id="overview-task-split" class="mt-1 block text-sm text-[#807672]"></span>
-         </a>
-        </div>
+         </a></div>
       </section>
-      <div class="columns">
-      <div class="task-support">
+      <section class="home-card white home-cal" aria-label="Today">
+       <a class="home-card-head" href="#page-6"><span class="icon-bubble sm aqua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg></span><span class="home-titles"><h2 class="home-card-title">Today</h2><span id="home-cal-caption" class="home-caption">Google Calendar</span></span></a>
+       <div id="home-events" class="home-events"></div>
+       <details class="home-spend" id="home-spend">
+        <summary><span id="home-spend-title">Today’s spending</span><span class="chev" aria-hidden="true">▾</span></summary>
+        <div id="home-spend-body" class="home-spend-body"></div>
+       </details>
+      </section>
+      <section class="home-card mist home-notes" aria-label="Notes and reminders">
+       <a class="home-card-head" href="#page-8"><span class="icon-bubble sm white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/></svg></span><span class="home-titles"><h2 class="home-card-title">Notes</h2><span id="home-notes-caption" class="home-caption">Synced to your account</span></span></a>
+       <a href="#page-8" class="home-note" id="home-note"><b>From your task notes</b><span id="home-note-text">No notes yet. Tap to add one.</span></a>
+       <a href="./sms-reminders.html" class="home-reminder" id="home-sms-toggle-row"><span>Text me my tasks · 8:00 AM</span><span class="toggle" id="home-sms-toggle" aria-hidden="true"><i></i></span></a>
        <section id="sms-reminder-panel" class="canva-panel panel" aria-labelledby="sms-reminder-heading">
         <h2 id="sms-reminder-heading" class="canva-text">Daily task texts</h2>
         <p class="canva-text panel-caption">Optional 8 AM reminders from Ultimate Dashboard listing your open tasks.</p>
         <p id="sms-reminder-status" class="mt-3 text-sm" role="status" aria-live="polite">Checking your text reminder settings…</p>
         <div class="form-actions"><a href="./sms-reminders.html" class="canva-button primary">Manage text reminders</a></div>
        </section>
-      </div>
+      </section>
      </div>
+
+     <section class="home-more" aria-labelledby="pages-overview-heading">
+      <div class="home-more-head"><h2 id="pages-overview-heading" class="canva-text text-xl font-semibold">Your dashboard at a glance</h2><p class="canva-text panel-caption">A quick look across all your pages.</p></div>
+      <div class="home-row home-row-3">
+       <section class="home-card white home-workouts" aria-label="Workouts">
+        <a class="home-card-head" href="#page-2"><span class="icon-bubble sm pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 8v8M4 10v4M17.5 8v8M20 10v4M6.5 12h11"/></svg></span><span class="home-titles"><h2 class="home-card-title">Workouts</h2><span id="home-wo-caption" class="home-caption">This week</span></span></a>
+        <div class="home-wo-body"><div class="home-ring" id="home-wo-ring" role="img" aria-label="Active days this week"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div><div id="home-wo-mix" class="home-wo-mix"></div></div>
+        <a href="#page-2" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Workouts</span>
+         <strong id="overview-workouts" class="mt-2 block text-lg">Loading workouts…</strong>
+         <span id="overview-workouts-detail" class="mt-1 block text-sm text-[#807672]"></span>
+         <span id="overview-week-plan" hidden></span><span id="overview-week-focus" hidden></span>
+        </a>
+       </section>
+       <section class="home-card white home-books" aria-label="Book Tracker">
+        <a class="home-card-head" href="#page-5"><span class="icon-bubble sm aqua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5.5A2 2 0 0 1 7 3.5h11v17H7a2 2 0 0 1-2-2z"/><path d="M5 18.5a2 2 0 0 1 2-2h11"/></svg></span><span class="home-titles"><h2 class="home-card-title">Book Tracker</h2><span id="home-books-caption" class="home-caption">Your shelf</span></span></a>
+        <div class="home-books-body"><div class="home-ring" id="home-books-ring" role="img" aria-label="Books finished"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div><ul id="home-books-list" class="home-books-list"></ul></div>
+        <a href="#page-5" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Book Tracker</span>
+         <strong id="overview-books" class="mt-2 block text-lg">Loading bookshelf…</strong>
+         <span id="overview-books-reading" class="mt-1 block text-sm text-[#807672]"></span>
+        </a>
+       </section>
+      </div>
+      <div hidden><a href="#page-6" class="canva-card legacy-finance-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Week in Depth</span>
+         <strong id="overview-week-spending" class="mt-2 block text-lg">Loading weekly spending…</strong>
+         <span id="overview-week-habits" class="mt-1 block text-sm text-[#807672]"></span>
+        </a><a href="#page-4" class="canva-card legacy-finance-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Monthly Spending</span>
+         <strong id="overview-month-spending" class="mt-2 block text-lg">Loading monthly spending…</strong>
+         <span id="overview-month-budget" class="mt-1 block text-sm text-[#807672]"></span>
+        </a></div>
+     </section>
+     <p class="iphone-install-note">Add Ultimate Dashboard to your iPhone: open this page in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. Your dashboard stays synced with the website.</p>
     </div>
    </main>
   </div>
@@ -490,7 +549,7 @@
             const desired = check.checked;
             const wasCompleted = Boolean(current.completed);
             row.classList.toggle('done', desired);
-            const result = await window.dataSdk.update({ ...current, completed: desired });
+            const result = await window.dataSdk.update({ ...current, completed: desired, completed_at: desired ? new Date().toISOString() : null });
             if (!result.isOk) { const latest = records.get(r.__backendId); check.checked = Boolean(latest?.completed); row.classList.toggle('done', check.checked); message('Could not update this task. Please try again.'); }
             else {
               message('Task updated.', true);
@@ -2377,6 +2436,7 @@
   <script src="./budget.js"></script>
   <script src="./week-in-depth.js"></script>
   <script src="./workouts.js"></script>
+  <script src="./home.js"></script>
   <script>
   (() => {
     function paintBudgetCard(){

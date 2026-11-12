@@ -227,7 +227,8 @@ function boot(host){
     if (!S) return null;
     const sched = schedule(60), idx = Math.max(0, weekIdxOf(todayISO()));
     const wk = weekByIdx(idx, sched), sp = spentBy(wk.start, wk.end);
-    return { left: wk.total - sp.total, spent: sp.total, total: wk.total, start: wk.start, end: wk.end, money };
+    const next = sched.find(c => c.date > todayISO());
+    return { left: wk.total - sp.total, spent: sp.total, total: wk.total, start: wk.start, end: wk.end, nextCheck: next ? next.date : null, money };
   }
 
   /* ---------- one day's activity, for the Week in Depth cards ---------- */
