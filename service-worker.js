@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ultimate-shell-v3';
+const CACHE_NAME = 'ultimate-shell-v4';
 const VENDOR_CACHE_NAME = 'ultimate-vendor-v1';
 const APP_ROOT = new URL('./', self.registration.scope);
 const SHELL_FILES = ['./theme.css', './glass.css', './glass-finances.css', './budget.js', './week-in-depth.js', './workouts.js', './data.js', './google-calendar.js', './supabase-config.js', './fonts/cause-latin-wght-normal.woff2', './fonts/cause-latin-ext-wght-normal.woff2'];

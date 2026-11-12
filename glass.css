@@ -183,3 +183,59 @@ main button.secondary { background: var(--g-raised), var(--g-white) !important; 
 }
 .dashboard-page-link[href="#page-2"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 8v8M4 10v4M17.5 8v8M20 10v4M6.5 12h11'/%3E%3C/svg%3E"); }
 .dashboard-page-link[href="#page-8"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='16' height='16' rx='3'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E"); }
+
+/* =====================================================================
+   Liquid Glass mockup layer (from ultimate-dashboard-glass-mockup,
+   css/mockup.css Part 1). Styles only: no data, wording or page content changes.
+   Adapted for the live site: blobs stay fixed while you scroll, and the
+   floating sidebar applies above 850px (phones keep the top bar).
+   ===================================================================== */
+
+/* Pastel blobs behind every page: size, position, then colour fading to clear */
+/* isolation keeps the blob layer above the page's own background (no layout effect) */
+body { isolation: isolate; }
+body::before {
+  position: fixed !important;
+  inset: 0 !important;
+  background:
+    radial-gradient(640px 540px at 14% 6%,  rgba(253,191,206,.9)  0%, rgba(253,191,206,0) 70%),  /* pink, top left */
+    radial-gradient(700px 540px at 81% 8%,  rgba(208,239,239,.95) 0%, rgba(208,239,239,0) 70%),  /* mint, top right */
+    radial-gradient(760px 580px at 52% 85%, rgba(219,223,235,1)   0%, rgba(219,223,235,0) 70%),  /* mist, bottom middle */
+    radial-gradient(520px 500px at 96% 95%, rgba(253,191,206,.8)  0%, rgba(253,191,206,0) 70%),  /* pink, bottom right */
+    radial-gradient(520px 480px at 4% 92%,  rgba(208,239,239,.9)  0%, rgba(208,239,239,0) 70%)   /* mint, bottom left */
+    !important;
+  background-color: #f9f8fa !important;
+}
+
+/* Floating sidebar: inset 24px with fully rounded corners (column grows 235px -> 259px) */
+@media (min-width: 851px) {
+  .dashboard-layout.dashboard-layout { grid-template-columns: 259px minmax(0, 1fr) !important; }
+  .dashboard-sidebar {
+    margin: 24px 0 24px 24px;
+    border-radius: 28px !important;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.2) 100%),
+      rgba(255,255,255,.5) !important;
+  }
+}
+
+/* Glass checkboxes everywhere (task rows have their own above) */
+input[type=checkbox]:not(.task-check) {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 7px;
+  border: 1.5px solid #44362f;
+  background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.08) 55%, rgba(255,255,255,.25)), #fff;
+  box-shadow: 0 10px 28px -4px rgba(68,54,47,.1), inset 0 2px 2px rgba(255,255,255,.95);
+  vertical-align: middle;
+  cursor: pointer;
+}
+input[type=checkbox]:not(.task-check):checked {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2344362f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E") center / 15px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.08) 55%, rgba(255,255,255,.25)),
+    #fdbfce;
+}
+input[type=checkbox]:not(.task-check):focus-visible { outline: 2px solid #fdbfce; outline-offset: 2px; }

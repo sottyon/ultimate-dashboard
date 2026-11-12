@@ -121,6 +121,8 @@ Run `python3 -m http.server` in this folder, then open http://localhost:8000.
 ## Liquid Glass look
 `glass.css` (whole site) and `glass-finances.css` (inside the Finances page) add the Liquid Glass design: frosted panes, glass pill buttons and fields, pastel background blobs, and line icons in the sidebar. They only change how things look. They don't move or resize anything, and they don't touch your data. A test confirmed every element keeps the same position and size with or without them.
 
+The end of `glass.css` also holds the Liquid Glass mockup layer (from `ultimate-dashboard-glass-mockup`, `css/mockup.css`, Part 1): larger pastel blobs, a floating rounded sidebar on screens wider than 850px, and glass checkboxes.
+
 To switch back to the flat look, delete the `<link rel="stylesheet" href="./glass.css">` line in `index.html`. Also delete the glass-finances link in `tools/build-budget.py`, then rebuild `budget.js`.
 
 ## Old money views
