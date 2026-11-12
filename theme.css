@@ -1,0 +1,33 @@
+/* Ultimate Dashboard · shared theme
+   Project palette: #fdbfce pink · #d0efef aqua · #44362f cocoa · #dbdfeb mist
+   Font: Cause (self-hosted in fonts/, variable 100–900, SIL OFL). Headers and titles use weight 672. */
+@font-face { font-family: "Cause"; font-style: normal; font-display: swap; font-weight: 100 900;
+  src: url("./fonts/cause-latin-ext-wght-normal.woff2") format("woff2-variations"), url("./fonts/cause-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Cause"; font-style: normal; font-display: swap; font-weight: 100 900;
+  src: url("./fonts/cause-latin-wght-normal.woff2") format("woff2-variations"), url("./fonts/cause-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+.cause-body { font-family: "Cause", cursive; font-optical-sizing: auto; font-weight: 400; font-style: normal; }
+.cause-title { font-family: "Cause", cursive; font-optical-sizing: auto; font-weight: 672; font-style: normal; }
+
+html body, body button, body input, body select, body textarea,
+body .font-serif, body .font-sans, body .font-mono:not(code) {
+  font-family: "Cause", cursive !important;
+  font-optical-sizing: auto;
+}
+body h1, body h2, body h3, body h4, body h5, body h6,
+body .headline, body .display, body .stat-number, body .dashboard-brand, body .brand {
+  font-family: "Cause", cursive !important;
+  font-weight: 672 !important;
+  font-style: normal;
+}
+:focus-visible { outline-color: #fdbfce !important; }
+.dashboard-sync-status[data-connected="true"]::before { background: #d0efef !important; }
+
+/* Budget page */
+.budget-page .dashboard-page-content { padding: 43px clamp(14px, 5vw, 76px) 70px; }
+.budget-page-intro { max-width: 640px; margin: 0 auto 18px; }
+.budget-page-intro h1 { font-size: clamp(30px, 4vw, 44px); line-height: 1.1; margin: 6px 0; color: #44362f; letter-spacing: -.03em; }
+.budget-page-intro p { margin: 0; color: #807672; }
+budget-app { display: block; max-width: 760px; margin: 0 auto; }
+.overview-budget-card { background: #fdbfce !important; border-color: #fdbfce !important; }

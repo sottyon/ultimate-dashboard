@@ -1,0 +1,14 @@
+{
+  "name": "Ultimate Dashboard",
+  "short_name": "Ultimate",
+  "description": "Your week, tasks, habits, budget, and reading list in one place.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#dbdfeb",
+  "theme_color": "#fdbfce",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "./apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
