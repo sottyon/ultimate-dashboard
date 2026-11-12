@@ -1,0 +1,73 @@
+/* Ultimate Dashboard · Liquid Glass skin for the Finances page
+   Loaded inside the Finances app's shadow root, after its own styles.
+   Visual layer only: no sizes, positions or data change. */
+:host {
+  --g-pane: linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.2) 100%);
+  --g-pane-shadow: 0 16px 40px -8px rgba(68,54,47,.08), inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 0 1.5px rgba(255,255,255,.95);
+  --g-raised: linear-gradient(180deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,.08) 55%, rgba(255,255,255,.25) 100%);
+  --g-raised-shadow: 0 10px 28px -4px rgba(68,54,47,.1), inset 0 -3px 8px rgba(68,54,47,.06), inset 0 2px 2px rgba(255,255,255,.95), inset 0 0 0 1.5px rgba(255,255,255,.95);
+  --g-edge: 1.5px solid #fff;
+  --bg: rgba(255,255,255,.55); --card2: rgba(255,255,255,.7); --line: rgba(219,223,235,.9);
+  background: var(--g-pane), rgba(255,255,255,.55) !important;
+  border-color: #fff !important;
+  border-radius: 28px !important;
+  /* no backdrop-filter here: it would trap the fixed + button, sheets and toasts inside the page */
+}
+/* panes */
+.card, .stat, .list, .field, .search, .weeknav button, .monthnav button, .dchip {
+  background-image: var(--g-raised) !important;
+  border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow) !important;
+}
+.card, .list { border-radius: 22px !important; box-shadow: var(--g-pane-shadow) !important; background-image: var(--g-pane) !important; }
+.stat { border-radius: 22px !important; }
+.card.hero { background: var(--g-pane), linear-gradient(135deg, #fdbfce 0%, #ffffff 72%) !important; }
+.field { border-radius: 16px !important; }
+.search { border-radius: 999px !important; }
+.weeknav button, .monthnav button { border-radius: 999px !important; }
+.dchip { border-radius: 16px !important; }
+.dchip.on { background: var(--g-raised), #fdbfce !important; }
+/* sub-tab bar: frosted strip, pink glass pill on the active tab */
+nav.tabs {
+  background: var(--g-pane), rgba(255,255,255,.75) !important;
+  border-bottom: var(--g-edge) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+}
+nav.tabs button.on svg {
+  background: var(--g-raised), #fdbfce !important;
+  box-shadow: var(--g-raised-shadow); outline: 1.5px solid #fff; border-radius: 999px !important;
+}
+/* buttons, chips, segmented controls */
+.btn, .chip, .fab, .pill, .tag {
+  border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow) !important;
+  border-radius: 999px !important;
+}
+.btn { background: var(--g-raised), #fdbfce !important; }
+.btn.ghost { background: var(--g-raised), #d0efef !important; }
+.btn.danger { background: var(--g-raised), #ffffff !important; }
+.chip { background: var(--g-raised), #ffffff !important; }
+.chip.on { background: var(--g-raised), #fdbfce !important; }
+.fab { background: var(--g-raised), #fdbfce !important; }
+.pill { background-image: var(--g-raised) !important; }
+.seg { background: var(--g-raised), rgba(255,255,255,.6) !important; border-color: #fff; border-radius: 999px !important; box-shadow: var(--g-raised-shadow); }
+.seg button { border-radius: 999px !important; }
+.seg button.on { background: var(--g-raised), #fdbfce !important; box-shadow: var(--g-raised-shadow) !important; }
+/* quick add fields */
+.quick input:not([type=checkbox]), .quick select {
+  background: var(--g-raised), #ffffff !important; border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow); border-radius: 999px !important;
+}
+/* checks, bars, icon tiles */
+.check .box { border-radius: 7px !important; border-color: #44362f !important; background: var(--g-raised), #ffffff; box-shadow: var(--g-raised-shadow); }
+.check.done .box { background: var(--g-raised), #fdbfce !important; }
+.emoji { border-radius: 999px !important; background: var(--g-raised), #d0efef !important; border-color: #fff; box-shadow: var(--g-raised-shadow); }
+.bar { background: rgba(219,223,235,.8) !important; box-shadow: inset 0 1px 2px rgba(68,54,47,.08); }
+.bar > i { background-image: linear-gradient(90deg, #fdbfce 0%, rgba(68,54,47,.45) 100%) !important; }
+.bar.over > i { background-image: none !important; }
+.chart .col b { background: linear-gradient(180deg, #fdbfce 0%, #d0efef 100%) !important; }
+.chart .col.over b { background: linear-gradient(180deg, #8a6a6b 0%, #fdbfce 100%) !important; }
+/* pop-up sheets */
+.sheet { background: var(--g-pane), rgba(249,248,250,.92) !important; border-color: #fff;
+  -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+.sheet-bg { background: rgba(68,54,47,.25) !important; }

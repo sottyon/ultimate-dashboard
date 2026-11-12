@@ -114,5 +114,10 @@ The storage, setup screen and theme changes live in `tools/budget-storage.js` an
 ## Preview locally
 Run `python3 -m http.server` in this folder, then open http://localhost:8000.
 
+## Liquid Glass look
+`glass.css` (whole site) and `glass-finances.css` (inside the Finances page) add the Liquid Glass design: frosted panes, glass pill buttons and fields, pastel background blobs, and line icons in the sidebar. They only change how things look. They don't move or resize anything, and they don't touch your data. A test confirmed every element keeps the same position and size with or without them.
+
+To switch back to the flat look, delete the `<link rel="stylesheet" href="./glass.css">` line in `index.html`. Also delete the glass-finances link in `tools/build-budget.py`, then rebuild `budget.js`.
+
 ## Old money views
 Daymark's weekly spending (Week in Depth), monthly budget chart and account balances (Monthly Spending) are hidden rather than deleted, because the page scripts still look for them. Finances is now the only place to log spending and see budgets and balances. Daymark's Credit card, Savings bucket and Checking account entry types are hidden from the Quarterly "Add an entry" form.

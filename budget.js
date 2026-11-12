@@ -10,7 +10,8 @@ const BUDGET_HTML = "\n<div class=\"bud-head\"><h2 class=\"bud-title\">Finances<
 function boot(host){
   if (host.shadowRoot) return;
   const root = host.attachShadow({ mode: "open" });
-  root.innerHTML = "<style>" + BUDGET_CSS + "</style>" + BUDGET_HTML;
+  // glass-finances.css is the optional Liquid Glass skin; remove this link for the flat look
+  root.innerHTML = "<style>" + BUDGET_CSS + "</style><link rel=\"stylesheet\" href=\"./glass-finances.css\">" + BUDGET_HTML;
   // the original app talks to `document`; point it at the shadow root instead
   const document = {
     getElementById: id => root.getElementById(id),

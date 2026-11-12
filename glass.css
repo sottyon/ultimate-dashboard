@@ -1,0 +1,174 @@
+/* Ultimate Dashboard · Liquid Glass skin
+   Visual layer only: surfaces, colours, borders, shadows, radii and icons.
+   It doesn't move, resize, add or remove anything, and it doesn't touch data.
+   Delete the <link> to glass.css in index.html to switch back to the flat look.
+   Tokens come from the "Ultimate Dashboard — Liquid Glass" design spec. */
+
+:root {
+  --g-ink: #44362f;
+  --g-canvas: #f9f8fa;
+  --g-pink: #fdbfce; --g-aqua: #d0efef; --g-mist: #dbdfeb; --g-white: #ffffff;
+  /* Glass/Pane: big surfaces (sidebar, panels, cards) */
+  --g-pane: linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.2) 100%);
+  --g-pane-shadow: 0 16px 40px -8px rgba(68,54,47,.08), inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 0 1.5px rgba(255,255,255,.95);
+  /* Glass/Raised: pills, buttons, fields, icon bubbles */
+  --g-raised: linear-gradient(180deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,.08) 55%, rgba(255,255,255,.25) 100%);
+  --g-raised-shadow: 0 10px 28px -4px rgba(68,54,47,.1), inset 0 -3px 8px rgba(68,54,47,.06), inset 0 2px 2px rgba(255,255,255,.95), inset 0 0 0 1.5px rgba(255,255,255,.95);
+  --g-edge: 1.5px solid #ffffff;
+  --g-r-pane: 28px; --g-r-row: 16px; --g-r-pill: 999px;
+}
+
+/* ---------- canvas: soft colour blobs behind everything ---------- */
+html, body { background-color: var(--g-canvas) !important; }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(44vw 60vh at 14% 6%,  rgba(253,191,206,.9)  0%, rgba(253,191,206,0) 70%),
+    radial-gradient(48vw 60vh at 81% 8%,  rgba(208,239,239,.95) 0%, rgba(208,239,239,0) 70%),
+    radial-gradient(52vw 64vh at 52% 85%, rgba(219,223,235,1)   0%, rgba(219,223,235,0) 70%),
+    radial-gradient(36vw 56vh at 96% 95%, rgba(253,191,206,.8)  0%, rgba(253,191,206,0) 70%),
+    radial-gradient(36vw 54vh at 4% 92%,  rgba(208,239,239,.9)  0%, rgba(208,239,239,0) 70%),
+    var(--g-canvas);
+}
+/* page shells let the canvas show through (their size and grid are unchanged) */
+.dashboard-layout, .dashboard-page-content, .app-shell, .shell, .app-wrapper,
+[id^="page-"], #page-5 > header.canva-header, .day-head {
+  background-color: transparent !important;
+}
+
+/* ---------- sidebar: frosted pane, ink text, glass pill on hover ---------- */
+.dashboard-sidebar {
+  background: var(--g-pane), rgba(255,255,255,.72) !important;
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  box-shadow: var(--g-pane-shadow);
+  color: var(--g-ink) !important;
+  border-radius: 0 var(--g-r-pane) var(--g-r-pane) 0;
+}
+.dashboard-sidebar .dashboard-brand, .dashboard-sidebar .dashboard-sidebar-note,
+.dashboard-sidebar .dashboard-sync-status { color: var(--g-ink) !important; }
+.dashboard-sidebar .dashboard-sidebar-note, .dashboard-sidebar .dashboard-sync-status { opacity: .65; }
+.dashboard-page-link {
+  display: flex !important; align-items: center; gap: 8px;
+  color: var(--g-ink) !important; font-weight: 500 !important;
+  border-radius: var(--g-r-pill) !important;
+  transition: background-color .15s ease, box-shadow .15s ease;
+}
+.dashboard-page-link:hover, .dashboard-page-link:focus-visible {
+  background: var(--g-raised), var(--g-pink) !important;
+  border-color: #fff; box-shadow: var(--g-raised-shadow);
+}
+.dashboard-sign-out {
+  background: var(--g-raised), var(--g-pink) !important; color: var(--g-ink) !important;
+  border-color: #fff !important; border-radius: var(--g-r-pill) !important; box-shadow: var(--g-raised-shadow);
+}
+/* 24px line icons, 1.8 stroke, picked by link target */
+.dashboard-page-link::before {
+  content: ""; flex: none; width: 18px; height: 18px; margin: -4px 0; background-color: currentColor;
+  -webkit-mask: var(--g-icon) center / contain no-repeat; mask: var(--g-icon) center / contain no-repeat;
+}
+.dashboard-page-link[href="#page-1"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 10.5 12 4.5l7.5 6V20h-15z'/%3E%3Cpath d='M9.5 20v-5h5v5'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-2"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4.5' y='4.5' width='6' height='6' rx='1.5'/%3E%3Crect x='13.5' y='4.5' width='6' height='6' rx='1.5'/%3E%3Crect x='4.5' y='13.5' width='6' height='6' rx='1.5'/%3E%3Crect x='13.5' y='13.5' width='6' height='6' rx='1.5'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-6"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5.5' width='16' height='15' rx='2.5'/%3E%3Cpath d='M4 10h16M8.5 3.5v4M15.5 3.5v4'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-3"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M12 4c.6 4 2 5.4 7 6-5 .6-6.4 2-7 8-.6-6-2-7.4-7-8 5-.6 6.4-2 7-6z'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-7"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='6' width='17' height='13' rx='2.5'/%3E%3Cpath d='M15 12.5h5.5'/%3E%3Ccircle cx='16' cy='12.5' r='.6'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-4"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19V12M10 19V7M15 19v-5M20 19V9'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href="#page-5"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 5.5A2 2 0 0 1 7 3.5h11v17H7a2 2 0 0 1-2-2z'/%3E%3Cpath d='M5 18.5a2 2 0 0 1 2-2h11'/%3E%3C/svg%3E"); }
+.dashboard-page-link[href$="sms-reminders.html"] { --g-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z'/%3E%3Cpath d='M10 20.5h4'/%3E%3C/svg%3E"); }
+
+/* ---------- panes: panels and cards keep their own tint ---------- */
+.canva-panel, .panel, .surface, .canva-card.stat, .canva-card.day-card, .auth-card,
+.canva-card.rounded-2xl, section.canva-card, .iphone-install-note {
+  background-image: var(--g-pane) !important;
+  border-color: #fff !important;
+  box-shadow: var(--g-pane-shadow) !important;
+  border-radius: var(--g-r-pane) !important;
+}
+.canva-card.day-card { overflow: hidden; }
+.day-head { box-shadow: inset 0 -1px 0 rgba(255,255,255,.9); }
+.finance-shortcut {
+  background: var(--g-pane), var(--g-pink) !important;
+  border-color: #fff; box-shadow: var(--g-pane-shadow); border-radius: var(--g-r-pane) !important;
+}
+
+/* ---------- buttons: liquid-glass pills ---------- */
+.canva-button, .small-btn, button.filter, .wid-add, .day-button {
+  border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow) !important;
+  border-radius: var(--g-r-pill) !important;
+}
+.canva-button.primary, .canva-button.action {
+  background: var(--g-raised), var(--g-pink) !important; color: var(--g-ink) !important;
+}
+.canva-button.secondary, .small-btn, button.filter {
+  background: var(--g-raised), var(--g-white) !important; color: var(--g-ink) !important;
+}
+button.filter.active, button.filter[aria-pressed="true"] { background: var(--g-raised), var(--g-pink) !important; }
+.wid-add { background: var(--g-raised), var(--g-aqua) !important; }
+.canva-button:hover, .small-btn:hover, .wid-add:hover { filter: brightness(1.02); }
+
+/* ---------- fields: frosted, pill-shaped on one line ---------- */
+.canva-input, .canva-dropdown, .field, .small-control, select.rounded-xl, #task-form input[type="date"], #task-form input[type="time"] {
+  background: var(--g-raised), var(--g-white) !important;
+  border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow) !important;
+  border-radius: var(--g-r-pill) !important;
+  color: var(--g-ink);
+}
+textarea, textarea.field, textarea.canva-input, .task-notes {
+  background: var(--g-raised), var(--g-white) !important;
+  border-color: #fff !important; box-shadow: var(--g-raised-shadow) !important;
+  border-radius: var(--g-r-row) !important;
+}
+.canva-input:focus, .canva-dropdown:focus, .field:focus, .small-control:focus, textarea:focus {
+  outline: 2px solid var(--g-pink) !important; outline-offset: 1px;
+}
+
+/* ---------- tags and chips ---------- */
+.canva-tag, .task-category {
+  background-image: var(--g-raised) !important; border-color: #fff; box-shadow: var(--g-raised-shadow);
+  border-radius: var(--g-r-pill) !important;
+}
+
+/* ---------- task rows: glass row with a glass checkbox ---------- */
+.task-row {
+  background: var(--g-raised), var(--g-white) !important; border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow); border-radius: var(--g-r-row) !important;
+}
+.task-row.done .task-name { opacity: .55; }
+.task-check {
+  -webkit-appearance: none; appearance: none; cursor: pointer; box-sizing: border-box;
+  width: 22px; height: 22px; flex: none; border-radius: 7px;
+  background: var(--g-raised), var(--g-white); border: 1.5px solid var(--g-ink); box-shadow: var(--g-raised-shadow);
+}
+.task-check:checked {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2344362f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E") center / 16px no-repeat, var(--g-raised), var(--g-pink);
+}
+
+/* ---------- Week in Depth extras ---------- */
+.wid-spend { border-color: #fff !important; box-shadow: var(--g-raised-shadow); border-radius: var(--g-r-row) !important; background: var(--g-raised), var(--g-white) !important; }
+.wid-spend > summary { background: var(--g-raised), var(--g-pink) !important; }
+.wid-check { background: var(--g-raised), var(--g-white); border-color: var(--g-ink); box-shadow: var(--g-raised-shadow); border-radius: 7px; }
+.wid-check.on, .wid-task.done .wid-check { background: var(--g-raised), var(--g-pink); }
+
+/* ---------- Finances page wrapper (the app itself is styled by glass-finances.css) ---------- */
+budget-app { border-radius: var(--g-r-pane); box-shadow: var(--g-pane-shadow); }
+
+/* ---------- standalone pages (text reminders, terms, privacy) ---------- */
+main > .card, main > section.card {
+  background: var(--g-pane), rgba(255,255,255,.85) !important; border-color: #fff !important;
+  box-shadow: var(--g-pane-shadow); border-radius: var(--g-r-pane) !important;
+}
+main > .card.soft { background: var(--g-pane), var(--g-aqua) !important; }
+main input[type=text], main input[type=email], main input[type=password], main input[type=tel] {
+  background: var(--g-raised), var(--g-white) !important; border-color: #fff !important;
+  box-shadow: var(--g-raised-shadow); border-radius: var(--g-r-pill) !important;
+}
+main button.primary, main button.secondary {
+  border-color: #fff !important; box-shadow: var(--g-raised-shadow); border-radius: var(--g-r-pill) !important; color: var(--g-ink) !important;
+}
+main button.primary { background: var(--g-raised), var(--g-pink) !important; }
+main button.secondary { background: var(--g-raised), var(--g-white) !important; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .dashboard-sidebar { -webkit-backdrop-filter: none; backdrop-filter: none; background: #fff !important; }
+}
