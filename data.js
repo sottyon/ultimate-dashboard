@@ -81,7 +81,12 @@
     if (!window.supabase?.createClient) {
       throw new Error('The Supabase client could not load. Check your internet connection and reload.');
     }
-    client = window.supabase.createClient(config.url, config.anonKey);
+    // accept a pasted REST/Auth endpoint or trailing slash: the client needs only the project origin
+    let projectUrl = String(config.url).trim();
+    try { projectUrl = new URL(projectUrl).origin; } catch (error) {
+      throw new Error('The Supabase URL in supabase-config.js is not a valid web address.');
+    }
+    client = window.supabase.createClient(projectUrl, config.anonKey);
     return client;
   }
 
