@@ -63,6 +63,7 @@ Plan on about 30 minutes for steps 1 to 7. Steps 8 and 9 are optional.
    url: "https://YOUR-PROJECT-REF.supabase.co",
    anonKey: "sb_publishable_…",
    ```
+   Use only the project address, ending in `.supabase.co`. **Don't** paste the REST endpoint (`…supabase.co/rest/v1/`). If you do, sign-in fails with "Invalid path specified in request URL".
 3. Commit the change.
 
 ### 6. Turn on GitHub Pages
