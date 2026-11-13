@@ -1,7 +1,7 @@
-const CACHE_NAME = 'ultimate-shell-v12';
+const CACHE_NAME = 'ultimate-shell-v13';
 const VENDOR_CACHE_NAME = 'ultimate-vendor-v1';
 const APP_ROOT = new URL('./', self.registration.scope);
-const SHELL_FILES = ['./theme.css', './glass.css', './glass-finances.css', './budget.js', './week-in-depth.js', './workouts.js', './home.js', './home.css', './data.js', './google-calendar.js', './supabase-config.js', './fonts/cause-latin-wght-normal.woff2', './fonts/cause-latin-ext-wght-normal.woff2'];
+const SHELL_FILES = ['./theme.css', './glass.css', './glass-finances.css', './budget.js', './week-in-depth.js', './workouts.js', './weight.js', './weight.css', './home.js', './home.css', './data.js', './google-calendar.js', './supabase-config.js', './fonts/cause-latin-wght-normal.woff2', './fonts/cause-latin-ext-wght-normal.woff2'];
 const VENDOR_SCRIPTS = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js',

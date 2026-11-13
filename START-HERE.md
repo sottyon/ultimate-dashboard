@@ -10,13 +10,28 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 |---|---|
 | Dashboard | Liquid Glass home page:<br>• Greeting with today's tasks due and money left this week<br>• **Search** across tabs, tasks, habits, books and workouts<br>• **Bell** button that opens text reminders, and **+** button that adds a new task<br>• **Finances** ring (share of this week's budget spent)<br>• **Week in Depth** chart (tasks finished vs. spending, Mon–Sun)<br>• **Habits** ring and daily dots<br>• **Tasks** ring with All / Completed / Still to do and a checklist you can tick<br>• **Today**: Google Calendar events and a drop-down of today's spending<br>• **Notes** and the daily-text toggle<br>• **Workouts** and **Book Tracker** rings<br>• The iPhone tip<br>Every card links to its tab. To show a name in the greeting, add `displayName: "…"` to `supabase-config.js` (it's public, like the rest of the site's code) |
 | **Tasks** | Task checklist with Work/Personal filters, **New task** (optional due day and time), the progress chart and notes |
-| **Workout Tracker** (replaces Week At A Glance) | Tap what you did each day: Back/Biceps, Glutes, Legs, Hot Pilates, Reformer Pilates, Hot Yoga, Cycle, Stair Master, Core or Rest day. Choosing **Rest day** clears that day's workouts, and choosing a workout clears Rest day. Shows weekly totals and lets you move between weeks |
+| **Workout Tracker** (replaces Week At A Glance) | Two tabs. **Workouts:** tap what you did each day: Back/Biceps, Glutes, Legs, Hot Pilates, Reformer Pilates, Hot Yoga, Cycle, Stair Master, Core or Rest day. Choosing **Rest day** clears that day's workouts, and choosing a workout clears Rest day. Shows weekly totals and lets you move between weeks. **Weight:** log your weight, set a goal, and see a progress ring and graph (see below) |
 | Week in Depth | For each day: **tasks due** (with time), **Google Calendar events**, **habits** ticked in Habit Tracker or logged on the card, and a **"Monday Spending Overview"** drop-down with that day's total and transactions from Finances |
 | Habit Tracker | Same as Daymark, plus a clickable emoji picker: tap **Icon** when adding a habit, or tap any habit's icon to change it (you can also type any emoji) |
 | Book Tracker | Search, your shelves and Goodreads sync (the Kindle link and card were removed) |
 | **Finances** | The whole Paycheck Budget app, with its **Today · Activity · Month · Plan · Accounts** tabs at the top (shown only on this page), the **+** button, transfers, goals, balances and backup |
 | Monthly Overview (was Quarterly, and before that Monthly Spending) | Monthly goals, wins and the parking lot. "Spending vs. budget" moved to **Finances → Month**, and "Money at a glance" moved to **Finances → Accounts** |
 | Text Reminders | SMS opt-in page (now branded Ultimate Dashboard) |
+
+### Weight tracker (Workout Tracker → Weight)
+1. Open **Workout Tracker** in the sidebar and tap the **Weight** tab at the top (next to **Workouts**). The site remembers which tab you used last.
+2. Under **Log your weight**, type your weight, check the date (today by default), and tap **Save**. Logging the same day again replaces that day's weight.
+3. Tap **Set goal** (or **Edit goal**). Enter your starting weight, start date, goal weight and units (lb or kg), then tap **Save goal**. Your first entry is used as the starting weight until you set one.
+4. The ring shows how far you are toward your goal, with the scale icon in the middle. Below it: current weight, change vs. a week ago, change since you started, and entries logged.
+5. **Progress** graphs your weight over time, with your goal as a dashed line. Tap **1M**, **3M**, **6M**, **1Y** or **All** to change the range, and tap a dot to see that day's weight.
+6. **History** lists every entry with the change from the one before. To delete one, tap **×**, then **Delete?**.
+7. On the Dashboard, the **Weight** card (under "Your dashboard at a glance") shows the goal ring, current weight, this week's change, what's left to go and a mini trend line. Tapping it opens the Weight tab.
+
+Weight entries are saved as one `weight_log` record per day (`{ "date": "2026-11-13", "weight": 150.8, "unit": "lb" }`) and the goal as one `weight_goal` record, both in `dashboard_records`. No database setup is needed.
+
+**Progress rings:** every ring on the Dashboard (Finances, Habits, Tasks, Workouts, Book Tracker, Weight) shows its card's icon in the middle, above the number.
+
+**Week in Depth calendar events** each sit on their own light blue (mint) glass card, with the time on top and the event name below.
 
 Workouts are saved as one `workout_log` record per day in `dashboard_records`, for example `{ "date": "2026-11-12", "workouts": ["legs", "core"] }`. Week At A Glance's old weekly goals and focus records stay in the database, but nothing shows them any more.
 
