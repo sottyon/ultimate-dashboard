@@ -118,12 +118,55 @@ If the calendar ever says access expired (for example after you remove the app a
 ### 10. Goodreads shelf (optional)
 The Book Tracker can sync your Goodreads shelves (Currently Reading, Read, Want to Read, Did Not Finish) from Goodreads custom widgets. No Supabase setup needed; follow `GOODREADS.md`.
 
+## Goals, transfers, accounts and categories you add yourself
+
+All of these live in **Finances**, save to your account like everything else, and change your budget from the **current paycheck on**. Past weeks keep the numbers they had.
+
+### Plan tab
+**Add a savings goal**
+1. Tap **Plan**, then **+ Add a savings goal**.
+2. Enter a name and target amount.
+3. Under **Save it in**, keep **New savings bucket** to make a bucket just for this goal, or pick an existing one (for example General Savings).
+4. Enter what you've **already saved toward it** (leave it at 0 if nothing).
+5. Choose one:
+   - **I have a goal date**: pick the date. The amount per paycheck is worked out for you (what's left ÷ paychecks until that date).
+   - **I'll set the amount**: type the buffer you want to save each paycheck.
+6. The preview shows the amount per paycheck and how much your weekly budget drops (about half of it). Pick an icon and tap **Save**.
+7. The goal appears under Savings goals, the transfer shows in **This paycheck's transfers** and on the Today to-do list, and the weekly cap goes down. Tick the transfer once you've moved the money.
+8. If a goal says **Behind**, tap it and tap **Save**. That recalculates the amount for your goal date.
+
+**Add a paycheck transfer**
+1. Tap **+ Add a paycheck transfer**.
+2. Enter the amount, where it goes (any cash account or savings bucket), an optional label, which paycheck it starts with, and **Every paycheck** or **Just that paycheck**.
+3. Tap **Save**. It's taken out of that paycheck's spending cash and added to your transfer to-dos.
+
+**Add to "Where this paycheck goes"**
+1. Tap **+ Add an entry** under Where this paycheck goes.
+2. Choose **Money out** (a cost to set aside, like a car repair) or **Money in** (extra cash, like a refund or bonus).
+3. Enter a name and amount, pick the paycheck, and choose which week it changes: **Both weeks**, **Week 1** or **Week 2**. The preview shows both weeks' new budgets.
+4. Choose **Just that paycheck** or **Every paycheck**, then tap **Save**. When the two weeks differ, the table shows separate Week 1 and Week 2 caps, and the Today tab uses the right one.
+
+To edit or remove anything you added, tap its line (dotted underline) in the table, the goal card, or the transfer row.
+
+### Accounts tab
+**Add an account or savings bucket**
+1. Tap **Accounts**, scroll to below **Cards owed**, and tap **+ Add an account** or **+ Add a savings bucket**.
+2. Choose **Cash account**, **Savings bucket** or **Credit card**, enter a name and the current balance (or what's owed), plus a due day for cards.
+3. Tap **Save**. It appears in the Cash or Cards owed list, counts toward net worth, and shows in **Paid from** when you log a purchase. Buckets can receive goals and transfers.
+4. To change or delete one, tap it, then **Edit account details**. An account used by a goal or transfer can't be deleted until you remove that first.
+
+**Add a budget category**
+1. Under **Budget per paycheck**, tap **+ Add a budget category**.
+2. Enter a name and its budget per paycheck, then tap an icon in the emoji grid (or type any emoji below it).
+3. Tap **Save**. The spending cash is re-split across all categories.
+4. To change any category's icon, name or amount, tap its icon or name. Deleting a category keeps past purchases' names.
+
 ## Updating the Budget page later
 `budget.js` is generated from the Paycheck Budget app. If you change the original app and want those changes here, clone `sottyon/Finance` next to this repo and run:
 ```
 python3 tools/build-budget.py ../Finance/index.html budget.js
 ```
-The storage, setup screen and theme changes live in `tools/budget-storage.js` and `tools/build-budget.py`.
+The storage, setup screen and theme changes live in `tools/budget-storage.js` and `tools/build-budget.py`. The goals, transfers, entries, accounts and categories additions are in `tools/budget-additions.patch`; the build applies it automatically and stops with a message if it no longer fits.
 
 ## Preview locally
 Run `python3 -m http.server` in this folder, then open http://localhost:8000.
