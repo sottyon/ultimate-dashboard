@@ -2085,6 +2085,18 @@
     :is(button,select,input,a):focus-visible { outline:3px solid #fdbfce; }
     button:disabled,select:disabled { opacity:.55; cursor:not-allowed; }
     .book-item { animation:appear .35s ease both; }
+    .shelf-section { border:1px solid #dbdfeb; border-radius:18px; background:#ffffffcc; margin-bottom:12px; overflow:hidden; }
+    .shelf-section[data-empty="true"] .shelf-toggle { opacity:.7; }
+    .shelf-toggle { width:100%; display:flex; align-items:center; gap:12px; padding:16px 20px; text-align:left; color:#44362f; background:transparent; cursor:pointer; transition:background .2s; }
+    .shelf-toggle:hover { background:#dbdfeb55; }
+    .shelf-toggle[aria-expanded="true"] { background:#d0efef; }
+    .shelf-toggle .shelf-title { font-family:"Cause",cursive; font-weight:672; font-size:20px; flex:1; }
+    .shelf-toggle .shelf-count { min-width:32px; padding:2px 10px; border-radius:999px; background:#fdbfce; color:#44362f; font-weight:700; font-size:13px; text-align:center; }
+    .shelf-toggle .shelf-chevron { width:20px; height:20px; transition:transform .25s; flex:none; }
+    .shelf-toggle[aria-expanded="true"] .shelf-chevron { transform:rotate(180deg); }
+    .shelf-panel { padding:4px 20px 20px; }
+    .shelf-panel[hidden] { display:none; }
+    .shelf-empty { color:#807672; font-size:14px; padding:8px 2px; }
     @keyframes appear { from { opacity:0; transform:translateY(9px) } to { opacity:1; transform:translateY(0) } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js" type="text/javascript"></script>
@@ -2154,7 +2166,7 @@
       <p data-template-id="empty-title" class="canva-text font-semibold mb-2" style="color: rgb(68, 54, 47); font-weight: 600; font-style: normal; font-size: 18px;">Your shelf starts here.</p>
       <p data-template-id="empty-copy" class="canva-text" style="color: rgb(68, 54, 47); font-weight: 400; font-style: normal; font-size: 16px;">Search for a book above and add your first read.</p>
      </div>
-     <div id="shelf" class="grid md:grid-cols-2 gap-4"></div>
+     <div id="shelf"></div>
     </section>
    </main>
    <footer class="max-w-6xl mx-auto px-5 sm:px-8 py-8 border-t border-[#dbdfeb]">
@@ -2175,6 +2187,72 @@
   let goodreadsSyncing = false;
 
   const statuses = ['Want to read', 'Reading', 'Finished', 'Did not finish'];
+
+  // ── Bookshelf sections: one collapsible shelf per status; only one is open at a time ──
+  const SHELF_SECTIONS = [
+    { status: 'Reading', title: 'Currently reading', empty: 'Nothing on the go right now.' },
+    { status: 'Want to read', title: 'To be read', empty: 'Your to-be-read pile is empty.' },
+    { status: 'Finished', title: 'Read', empty: 'Books you finish will land here.' },
+    { status: 'Did not finish', title: 'Did not finish', empty: '', hideWhenEmpty: true }
+  ];
+  const SHELF_OPEN_KEY = 'ultimate-bookshelf-open';
+  const shelfGrids = new Map();
+  let openShelf = 'Reading';
+  try { const saved = localStorage.getItem(SHELF_OPEN_KEY); if (saved !== null) openShelf = saved; } catch (_) {}
+
+  function setOpenShelf(status) {
+    openShelf = status;
+    try { localStorage.setItem(SHELF_OPEN_KEY, status); } catch (_) {}
+    document.querySelectorAll('#shelf .shelf-section').forEach(section => {
+      const open = section.dataset.status === status;
+      section.querySelector('.shelf-toggle').setAttribute('aria-expanded', String(open));
+      section.querySelector('.shelf-panel').hidden = !open;
+    });
+  }
+
+  function buildShelfSections() {
+    const root = document.getElementById('shelf');
+    SHELF_SECTIONS.forEach((info, index) => {
+      const section = document.createElement('section');
+      section.className = 'shelf-section';
+      section.dataset.status = info.status;
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'shelf-toggle';
+      toggle.id = `shelf-toggle-${index}`;
+      toggle.setAttribute('aria-controls', `shelf-panel-${index}`);
+      toggle.innerHTML = '<span class="shelf-title"></span><span class="shelf-count">0</span><svg class="shelf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+      toggle.querySelector('.shelf-title').textContent = info.title;
+      toggle.addEventListener('click', () => setOpenShelf(openShelf === info.status ? '' : info.status));
+      const panel = document.createElement('div');
+      panel.className = 'shelf-panel';
+      panel.id = `shelf-panel-${index}`;
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-labelledby', toggle.id);
+      const empty = document.createElement('p');
+      empty.className = 'shelf-empty';
+      empty.textContent = info.empty;
+      const grid = document.createElement('div');
+      grid.className = 'grid md:grid-cols-2 gap-4';
+      panel.append(empty, grid);
+      section.append(toggle, panel);
+      root.appendChild(section);
+      shelfGrids.set(info.status, grid);
+    });
+    setOpenShelf(openShelf);
+  }
+
+  function refreshShelfSections() {
+    document.querySelectorAll('#shelf .shelf-section').forEach(section => {
+      const info = SHELF_SECTIONS.find(item => item.status === section.dataset.status);
+      const count = shelfGrids.get(info.status).children.length;
+      section.querySelector('.shelf-count').textContent = String(count);
+      section.querySelector('.shelf-count').setAttribute('aria-label', `${count} ${count === 1 ? 'book' : 'books'}`);
+      section.querySelector('.shelf-empty').hidden = count > 0;
+      section.dataset.empty = String(count === 0);
+      section.hidden = Boolean(info.hideWhenEmpty && count === 0);
+    });
+  }
 
   function isBookRecord(record) {
     return typeof record.book_title === 'string' && record.book_title.trim().length > 0;
@@ -2317,7 +2395,9 @@
     books = data.filter(isBookRecord).sort((a, b) => (b.added_at || '').localeCompare(a.added_at || ''));
     document.getElementById('books-empty-state').hidden = books.length > 0;
     document.getElementById('book-count').textContent = `${books.length} ${books.length === 1 ? 'book' : 'books'} on your shelf`;
-    const current = new Map([...shelfEl.children].map(node => [node.dataset.recordId, node]));
+    if (!shelfGrids.size) buildShelfSections();
+    const current = new Map([...shelfEl.querySelectorAll('article[data-record-id]')].map(node => [node.dataset.recordId, node]));
+    const shelfPositions = new Map();
     books.forEach(book => {
       let card = current.get(book.__backendId);
       if (card) { current.delete(book.__backendId); }
@@ -2383,8 +2463,13 @@
         controls.append(select, remove, cancel);
         info.append(title, author, controls);
         card.append(cover, info);
-        shelfEl.appendChild(card);
       }
+      // place the card on its status shelf, keeping newest first; only move it when needed
+      const shelfStatus = statuses.includes(book.status) ? book.status : 'Want to read';
+      const grid = shelfGrids.get(shelfStatus);
+      const position = shelfPositions.get(shelfStatus) || 0;
+      if (grid.children[position] !== card) grid.insertBefore(card, grid.children[position] || null);
+      shelfPositions.set(shelfStatus, position + 1);
       card.querySelector('.record-title').textContent = book.book_title;
       card.querySelector('.record-author').textContent = book.book_author;
       const cover = card.querySelector('.record-cover');
@@ -2398,6 +2483,7 @@
       if (!select.disabled) select.value = statuses.includes(book.status) ? book.status : 'Want to read';
     });
     current.forEach(node => node.remove());
+    refreshShelfSections();
     renderResults();
   }
 
