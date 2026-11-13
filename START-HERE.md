@@ -120,7 +120,7 @@ If the calendar ever says access expired (for example after you remove the app a
 The Book Tracker can sync your Goodreads shelves (Currently Reading, Read, Want to Read, Did Not Finish) from Goodreads custom widgets. No Supabase setup needed; follow `GOODREADS.md`.
 
 ## Sounds and celebrations
-- **Cha-ching:** plays with a shower of coins whenever money goes into a savings bucket. That means ticking a transfer into General Savings, Vet Visits, Vacation, Brokerage or a bucket you added, or adjusting one of those balances upward in Finances. It also plays when you raise a savings entry on Monthly Overview.
+- **Cha-ching:** plays with a shower of coins whenever money goes into a savings bucket. That means adding a deposit to a savings bucket, ticking a transfer into General Savings, Vet Visits, Vacation, Brokerage or a bucket you added, or adjusting one of those balances upward in Finances. It also plays when you raise a savings entry on Monthly Overview.
 - **Tasks and habits:** finishing a task or ticking a habit sets off a big confetti burst with rings and a "ta-da" sound.
 - On iPhone, sounds play only when the ringer switch is on (not silent mode) and after you've tapped the page once since opening it.
 
@@ -159,7 +159,28 @@ To edit or remove anything you added, tap its line (dotted underline) in the tab
 1. Tap **Accounts**, scroll to below **Cards owed**, and tap **+ Add an account** or **+ Add a savings bucket**.
 2. Choose **Cash account**, **Savings bucket** or **Credit card**, enter a name and the current balance (or what's owed), plus a due day for cards.
 3. Tap **Save**. It appears in the Cash or Cards owed list, counts toward net worth, and shows in **Paid from** when you log a purchase. Buckets can receive goals and transfers.
-4. To change or delete one, tap it, then **Edit account details**. An account used by a goal or transfer can't be deleted until you remove that first.
+4. To change or delete one, tap it, then **Rename / edit**. An account used by a goal or transfer can't be deleted until you remove that first.
+
+**Open an account's page**
+1. Tap any account, bucket or card under **Cash** or **Cards owed**. Its own page opens with the balance and this month's money in and out.
+2. Under **History** you see every purchase, deposit, paycheck transfer and balance adjustment for that account, newest first.
+3. Type in **Search this account** to find a line by name, note, amount or date (for example `75` or `november`). Tap **All**, **Purchases**, **Deposits**, **Transfers** or **Adjustments** to filter.
+4. Tap a line to edit or delete it. Paycheck transfers are ticked and unticked on the Today and Plan tabs.
+5. Use **+ Add a purchase** to log a purchase already set to this account, or **Adjust balance** to correct it.
+6. Tap **‹ All accounts** to go back.
+
+**Rename a savings bucket (or any account)**
+1. Open the account's page and tap **Rename / edit**.
+2. Type a new name, or pick one from **Or choose a name** (names already in use are greyed out).
+3. Tap **Save**. The balance, history, goals and paycheck transfers stay with it. This works for the built-in buckets too (General Savings, Vacation, Vet Visits and so on). To undo, tap **Rename / edit** again, then **Go back to “original name”**.
+
+**Add a deposit**
+1. On a bucket's page tap **+ Add a deposit**, or tap **+ Add a deposit** under **Deposits** on the Accounts tab.
+2. Enter the amount and check **Deposit into**.
+3. Under **Where the money came from**, pick one of your accounts (for example Checking; that account goes down by the same amount) or a source of new money: Paycheck, Gifted, Interest, Refund, Cash, Side income or Transfer from another bank.
+4. To make your own source, choose **➕ Create a new source…** and type its name (for example *Birthday money*). It's saved for next time and marked ✦. To remove one you made, pick it and tap **Remove this source from the list**.
+5. Set the date, add an optional note, and tap **Save**. Deposits into savings buckets get the cha-ching.
+6. To change or delete a deposit, tap it in the **Deposits** list or on the account's page.
 
 **Add a budget category**
 1. Under **Budget per paycheck**, tap **+ Add a budget category**.
