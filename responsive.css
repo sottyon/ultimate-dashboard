@@ -1,0 +1,59 @@
+/* Ultimate Dashboard · responsive layer
+   Layout only (sizes, columns, spacing, wrapping). No data, wording or behaviour changes.
+   Breakpoints: phone ≤ 600px · tablet portrait 601–900px · tablet landscape / small laptop 901–1279px · Mac ≥ 1280px. */
+
+/* Hidden screen-reader labels were positioned against the whole page, so they
+   leaked out of sideways scrollers and made the page wider than the screen. */
+.day-card, .week-scroll, .overflow-x-auto { position: relative; }
+html, body { overflow-x: clip; }
+
+/* Notched iPhones in landscape: keep content clear of the notch and rounded corners
+   (these insets are 0 on Macs and on iPhones held upright). */
+body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+
+/* iPhone/iPad Safari zooms the page when you tap a field with text under 16px. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]), select, textarea { font-size: max(16px, 1em) !important; }
+}
+
+/* ---------- Week in Depth: days fit the screen instead of scrolling sideways ---------- */
+.week-scroll { overflow-x: visible; }
+.week-grid { min-width: 0 !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+.day-card { min-height: 0; }
+[data-template-id="scroll-hint"] { display: none; }
+@media (min-width: 1500px) {          /* big Mac screens: the whole week side by side */
+  .week-grid { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; gap: 10px; }
+  .day-card { min-height: 530px; }
+}
+@media (max-width: 1100px) { .week-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }   /* tablets */
+@media (max-width: 600px)  { .week-grid { grid-template-columns: minmax(0, 1fr) !important; } }              /* iPhone */
+
+/* ---------- Dashboard ---------- */
+/* tablets: a third card that ends up alone in its row spans the full width */
+@media (min-width: 761px) and (max-width: 1180px) {
+  .home-row-3 > .home-card:nth-child(3):last-child { grid-column: 1 / -1; }
+}
+/* iPhone: the Tasks ring sits above full-width stat tiles */
+@media (max-width: 600px) {
+  .home .home-task-top { flex-direction: column; align-items: stretch; }
+  .home .home-task-top .home-ring { align-self: center; }
+  .home-wo-body, .home-books-body, .home-wt-body { gap: 14px; }
+  .home-card { padding: 20px; }
+}
+
+/* ---------- Workout Tracker ---------- */
+@media (max-width: 600px) {
+  .wo-toolbar { flex-direction: column; align-items: flex-start; }
+  .wo-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+}
+
+/* ---------- page headers wrap cleanly on narrow screens ---------- */
+@media (max-width: 600px) {
+  #page-6 header.flex { align-items: flex-start; }
+  #page-6 [aria-label="Week navigation"] { width: 100%; }
+}
+
+/* small iPhones (375px): the search field shrinks so the bell and + buttons stay on screen */
+.home-actions { min-width: 0; max-width: 100%; }
+.home-search { min-width: 0; }
+.home-actions > .icon-bubble { flex: none; }
