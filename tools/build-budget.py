@@ -157,3 +157,13 @@ indented = "\n".join(("  " + l) if l.strip() else l for l in js.split("\n"))
 module = module.replace("__JS__", indented)
 out_path.write_text(module)
 print("wrote", out_path, len(module), "bytes")
+
+# Re-apply the Ultimate Dashboard additions (Plan-tab goals, paycheck transfers and
+# entries; Accounts-tab accounts, buckets and categories with emoji icons).
+import subprocess
+extra = pathlib.Path(__file__).parent / "budget-additions.patch"
+if extra.exists():
+    r = subprocess.run(["patch", "--forward", str(out_path), str(extra)], capture_output=True, text=True)
+    print(r.stdout.strip() or r.stderr.strip())
+    if r.returncode != 0:
+        sys.exit("The additions patch didn't apply cleanly. budget.js was rebuilt WITHOUT the goals/accounts/categories additions — restore it with: git checkout budget.js")
