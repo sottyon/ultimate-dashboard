@@ -113,7 +113,36 @@
     .celebration-layer { position:fixed; inset:0; z-index:10001; overflow:hidden; pointer-events:none; }
     .celebration-particle { position:fixed; left:var(--origin-x); top:var(--origin-y); font-size:var(--particle-size); line-height:1; animation:celebration-pop 900ms cubic-bezier(.16,.72,.34,1) both; }
     @keyframes celebration-pop { from { opacity:1; transform:translate(-50%,-50%) scale(.6) rotate(0deg); } to { opacity:0; transform:translate(calc(-50% + var(--drift-x)),calc(-50% + var(--drift-y))) scale(1.15) rotate(var(--spin)); } }
-    @media(prefers-reduced-motion:reduce) { .celebration-particle { animation-duration:1ms; } }
+    .celebration-particle.burst { animation:celebration-burst 1500ms cubic-bezier(.2,.75,.3,1) both; }
+    @keyframes celebration-burst {
+      0%   { opacity:1; transform:translate(-50%,-50%) scale(.4) rotate(0deg); }
+      35%  { opacity:1; transform:translate(calc(-50% + var(--drift-x) * .7),calc(-50% + var(--peak-y))) scale(1.15) rotate(calc(var(--spin) * .4)); }
+      100% { opacity:0; transform:translate(calc(-50% + var(--drift-x)),calc(-50% + var(--fall-y))) scale(.85) rotate(var(--spin)); }
+    }
+    .celebration-ring { position:fixed; left:var(--origin-x); top:var(--origin-y); width:24px; height:24px; border-radius:50%; border:5px solid #fdbfce; transform:translate(-50%,-50%) scale(1); animation:celebration-ring 750ms ease-out both; }
+    .celebration-ring.mint { border-color:#d0efef; animation-delay:120ms; }
+    @keyframes celebration-ring { from { opacity:.95; transform:translate(-50%,-50%) scale(1); } to { opacity:0; transform:translate(-50%,-50%) scale(13); } }
+    .celebration-target { animation:celebration-thump 420ms cubic-bezier(.3,1.6,.5,1); }
+    @keyframes celebration-thump { 0% { transform:scale(1); } 40% { transform:scale(1.06); } 100% { transform:scale(1); } }
+    @media(prefers-reduced-motion:reduce) { .celebration-particle, .celebration-particle.burst, .celebration-ring { animation-duration:1ms; } .celebration-target { animation:none; } }
+    /* shared clickable emoji picker (Habit Tracker icons) */
+    .emoji-picker { position:fixed; z-index:10020; width:min(340px,calc(100vw - 24px)); padding:16px; border-radius:28px; color:#44362f; font-family:"Cause",cursive;
+      background:linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.05) 50%,rgba(255,255,255,.2) 100%),rgba(255,255,255,.9);
+      -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+      box-shadow:0 16px 40px -8px rgba(68,54,47,.18), inset 0 0 0 1.5px #fff, inset 0 1px 1px #fff; }
+    .emoji-picker-title { margin:0 4px 10px; font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:#7a706c; }
+    .emoji-picker-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; }
+    .emoji-picker-grid button { aspect-ratio:1; border:0; border-radius:999px; font-size:20px; line-height:1; cursor:pointer; padding:0;
+      background:linear-gradient(180deg,rgba(255,255,255,.7) 8%,rgba(255,255,255,.25) 55%),#fff;
+      box-shadow:0 6px 14px -4px rgba(68,54,47,.12), inset 0 -3px 8px rgba(68,54,47,.06), inset 0 2px 2px rgba(255,255,255,.95), inset 0 0 0 1.5px #fff; }
+    .emoji-picker-grid button:hover, .emoji-picker-grid button.on { background:#fdbfce; }
+    .emoji-picker-grid button:focus-visible, .emoji-picker input:focus-visible, .emoji-picker-own button:focus-visible { outline:2px solid #fdbfce; outline-offset:2px; }
+    .emoji-picker-own { display:flex; gap:8px; margin-top:12px; }
+    .emoji-picker-own input { flex:1; min-width:0; border:0; border-radius:999px; padding:10px 16px; font:inherit; font-size:16px; color:#44362f; background:#fff; box-shadow:inset 0 0 0 1.5px #dbdfeb; }
+    .emoji-picker-own input::placeholder { color:#7a706c; }
+    .emoji-picker-own button { border:0; border-radius:999px; padding:10px 16px; font:inherit; font-weight:700; background:#fdbfce; color:#44362f; cursor:pointer; }
+    .habit-icon-pick { border:0; cursor:pointer; transition:transform .15s; }
+    .habit-icon-pick:hover { transform:scale(1.08); box-shadow:0 0 0 2px #fdbfce; }
     @media(max-width:850px) {
       .dashboard-layout.dashboard-layout { grid-template-columns:minmax(0,1fr); }
       .dashboard-sidebar { flex-direction:row; align-items:center; gap:14px; padding:14px 18px; }
@@ -133,61 +162,149 @@
     @media(max-width:650px) { .columns{grid-template-columns:1fr} .stats{gap:8px} .stat{padding:15px;min-height:110px} .stat-number{font-size:34px} .form-grid{grid-template-columns:1fr} .topline{align-items:start} .primary{padding:11px} .priority{display:none} }
   </style>
   <script>
+    /* one shared audio context, unlocked on the first tap so sounds also play after a save finishes */
+    (() => {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      window.dashboardAudio = () => {
+        if (!AC) return null;
+        if (!window.__dashAudioCtx) { try { window.__dashAudioCtx = new AC(); } catch (e) { return null; } }
+        const ctx = window.__dashAudioCtx;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        return ctx;
+      };
+      const unlock = () => { const c = window.dashboardAudio(); if (c) { const b = c.createBuffer(1, 1, 22050); const s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } };
+      ['pointerdown', 'touchend', 'keydown'].forEach(t => window.addEventListener(t, unlock, { once: true, capture: true, passive: true }));
+    })();
+    function dashboardSound(kind) {
+      const ctx = window.dashboardAudio && window.dashboardAudio();
+      if (!ctx) return;
+      try {
+        const t0 = ctx.currentTime + 0.02;
+        const out = ctx.createDynamicsCompressor();
+        out.threshold.value = -10; out.ratio.value = 6;
+        out.connect(ctx.destination);
+        const tone = (freq, start, dur, peak, type = 'sine', glideTo) => {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = type; o.frequency.setValueAtTime(freq, start);
+          if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, start + dur * 0.6);
+          g.gain.setValueAtTime(0.0001, start);
+          g.gain.exponentialRampToValueAtTime(peak, start + 0.008);
+          g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+          o.connect(g); g.connect(out); o.start(start); o.stop(start + dur + 0.05);
+        };
+        const noise = (start, dur, peak, freq, q) => {
+          const len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+          const buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+          for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+          const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+          src.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+          g.gain.setValueAtTime(peak, start); g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+          src.connect(f); f.connect(g); g.connect(out); src.start(start); src.stop(start + dur + 0.02);
+        };
+        const bell = (base, start, peak, dur) => [[1, 1], [2.01, .55], [2.76, .35], [4.07, .2], [5.4, .1]]
+          .forEach(([r, v]) => tone(base * r, start, dur * (1.15 - r * 0.1), peak * v));
+        if (kind === 'coins') {
+          // "cha" — the register drawer: two quick metallic scrapes
+          noise(t0, 0.07, 0.9, 3200, 1.2);
+          noise(t0 + 0.075, 0.05, 0.6, 5200, 1.5);
+          // "ching!" — two bright register bells
+          bell(1568, t0 + 0.13, 0.32, 1.1);
+          bell(2093, t0 + 0.22, 0.28, 1.25);
+          // coins jingling as they land
+          [0.42, 0.5, 0.57, 0.66, 0.72, 0.83].forEach((dt, i) => tone(3500 + (i % 3) * 700 + Math.random() * 300, t0 + dt, 0.12, 0.07));
+        } else {
+          // bold "ta-da": a pop, a quick rising run, then a bright chord
+          noise(t0, 0.06, 0.8, 1800, 0.8);
+          tone(220, t0, 0.18, 0.35, 'triangle', 880);
+          [[523.25, 0.05], [659.25, 0.11], [783.99, 0.17]].forEach(([f, dt]) => tone(f, t0 + dt, 0.16, 0.22, 'triangle'));
+          [1046.5, 1318.5, 1568].forEach(f => { tone(f, t0 + 0.24, 0.75, 0.2, 'triangle'); tone(f * 2, t0 + 0.24, 0.5, 0.05); });
+          noise(t0 + 0.24, 0.35, 0.25, 7000, 0.7);
+        }
+      } catch (error) {
+        console.warn('Could not play the dashboard celebration sound.', error);
+      }
+    }
+    window.dashboardSound = dashboardSound;
     window.celebrateDashboard = function (target, kind) {
       if (!target || !target.isConnected) return;
       const bounds = target.getBoundingClientRect();
+      const ox = `${bounds.left + bounds.width / 2}px`, oy = `${bounds.top + bounds.height / 2}px`;
       const layer = document.createElement('div');
       layer.className = 'celebration-layer';
       layer.setAttribute('aria-hidden', 'true');
-      const colors = ['#fdbfce', '#d0efef', '#8a6a6b', '#44362f', '#a29a97'];
-      const symbols = kind === 'stars' ? ['✦', '★', '✧'] : kind === 'coins' ? ['🪙', '🟡'] : null;
-      const count = kind === 'confetti' || kind === 'confetti-pop' ? 34 : 10;
+      const colors = ['#fdbfce', '#d0efef', '#44362f', '#dbdfeb', '#fdbfce'];
+      const bold = kind === 'confetti-pop' || kind === 'confetti';
+      const symbols = kind === 'stars' ? ['✦', '★', '✧'] : kind === 'coins' ? ['🪙', '💰', '🪙', '✨'] : null;
+      const count = bold ? 90 : kind === 'coins' ? 22 : 10;
+      if (bold || kind === 'coins') {
+        ['', ' mint'].forEach(extra => {
+          const ring = document.createElement('span');
+          ring.className = 'celebration-ring' + extra;
+          ring.style.setProperty('--origin-x', ox); ring.style.setProperty('--origin-y', oy);
+          layer.appendChild(ring);
+        });
+      }
       for (let i = 0; i < count; i++) {
         const particle = document.createElement('span');
-        particle.className = 'celebration-particle';
+        particle.className = 'celebration-particle' + (bold || kind === 'coins' ? ' burst' : '');
         particle.textContent = symbols ? symbols[i % symbols.length] : '';
-        particle.style.setProperty('--origin-x', `${bounds.left + bounds.width / 2}px`);
-        particle.style.setProperty('--origin-y', `${bounds.top + bounds.height / 2}px`);
-        particle.style.setProperty('--drift-x', `${Math.round(Math.random() * 240 - 120)}px`);
+        particle.style.setProperty('--origin-x', ox);
+        particle.style.setProperty('--origin-y', oy);
+        const spread = bold ? 380 : kind === 'coins' ? 220 : 120;
+        particle.style.setProperty('--drift-x', `${Math.round(Math.random() * spread * 2 - spread)}px`);
         particle.style.setProperty('--drift-y', `${Math.round(Math.random() * -200 - 30)}px`);
-        particle.style.setProperty('--spin', `${Math.round(Math.random() * 540 - 270)}deg`);
-        particle.style.setProperty('--particle-size', symbols ? `${Math.round(Math.random() * 12 + 16)}px` : `${Math.round(Math.random() * 7 + 7)}px`);
+        particle.style.setProperty('--peak-y', `${Math.round(Math.random() * -(bold ? 300 : 180) - 60)}px`);
+        particle.style.setProperty('--fall-y', `${Math.round(Math.random() * 260 + 80)}px`);
+        particle.style.setProperty('--spin', `${Math.round(Math.random() * 1080 - 540)}deg`);
+        particle.style.setProperty('--particle-size', symbols ? `${Math.round(Math.random() * 14 + 18)}px` : `${Math.round(Math.random() * 7 + 7)}px`);
+        particle.style.animationDelay = `${Math.round(Math.random() * 90)}ms`;
         if (!symbols) {
           particle.style.backgroundColor = colors[i % colors.length];
-          particle.style.width = `${Math.round(Math.random() * 6 + 5)}px`;
-          particle.style.height = `${Math.round(Math.random() * 9 + 6)}px`;
-          particle.style.borderRadius = i % 2 ? '50%' : '2px';
+          particle.style.width = `${Math.round(Math.random() * (bold ? 8 : 6) + (bold ? 7 : 5))}px`;
+          particle.style.height = `${Math.round(Math.random() * (bold ? 12 : 9) + (bold ? 8 : 6))}px`;
+          particle.style.borderRadius = i % 3 === 0 ? '50%' : i % 3 === 1 ? '3px' : '999px';
         }
         layer.appendChild(particle);
       }
       document.body.appendChild(layer);
-      window.setTimeout(() => layer.remove(), 1000);
-      if (kind === 'coins' || kind === 'confetti-pop') {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          try {
-            const audio = new AudioContextClass();
-            const notes = kind === 'coins' ? [[1568, 0], [2093, 0.13]] : [[660, 0]];
-            notes.forEach(([frequency, offset]) => {
-              const oscillator = audio.createOscillator();
-              const gain = audio.createGain();
-              oscillator.type = kind === 'coins' ? 'sine' : 'triangle';
-              oscillator.frequency.value = frequency;
-              if (kind === 'confetti-pop') oscillator.frequency.exponentialRampToValueAtTime(190, audio.currentTime + 0.12);
-              gain.gain.setValueAtTime(0.0001, audio.currentTime + offset);
-              gain.gain.exponentialRampToValueAtTime(kind === 'coins' ? 0.11 : 0.08, audio.currentTime + offset + 0.015);
-              gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + offset + (kind === 'coins' ? 0.28 : 0.14));
-              oscillator.connect(gain);
-              gain.connect(audio.destination);
-              oscillator.start(audio.currentTime + offset);
-              oscillator.stop(audio.currentTime + offset + (kind === 'coins' ? 0.3 : 0.16));
-            });
-            window.setTimeout(() => audio.close(), kind === 'coins' ? 600 : 250);
-          } catch (error) {
-            console.warn('Could not play the dashboard celebration sound.', error);
-          }
-        }
+      window.setTimeout(() => layer.remove(), bold || kind === 'coins' ? 1800 : 1000);
+      if (bold || kind === 'coins') {
+        target.classList.remove('celebration-target'); void target.offsetWidth; target.classList.add('celebration-target');
+        window.setTimeout(() => target.classList.remove('celebration-target'), 500);
       }
+      if (kind === 'coins' || kind === 'confetti-pop') dashboardSound(kind === 'coins' ? 'coins' : 'pop');
+    };
+
+    /* clickable emoji picker: openEmojiPicker({ anchor, current, title, onPick }) */
+    window.DASHBOARD_EMOJI = ['✦','✨','⭐','🔥','💧','📖','📚','✍️','📝','🧘','🏃','🚶','💪','🚴','🏊','🧗','🥗','🍎','🥤','☕','🍳','😴','🛏️','🌙','🌞','🦷','🧴','💊','🧠','🙏','❤️','😊','📵','💻','🎨','🎵','🎸','🌱','🌿','🐶','🐱','🧹','🧺','💰','💳','📈','🎯','✅'];
+    window.openEmojiPicker = function ({ anchor, current, title, onPick }) {
+      document.querySelectorAll('.emoji-picker').forEach(el => el.remove());
+      const pop = document.createElement('div');
+      pop.className = 'emoji-picker';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-label', title || 'Pick an icon');
+      pop.innerHTML = `<p class="emoji-picker-title"></p><div class="emoji-picker-grid"></div>
+        <form class="emoji-picker-own"><input maxlength="8" placeholder="Or type any emoji" aria-label="Type any emoji"><button type="submit">Use</button></form>`;
+      pop.querySelector('.emoji-picker-title').textContent = title || 'Pick an icon';
+      const grid = pop.querySelector('.emoji-picker-grid');
+      window.DASHBOARD_EMOJI.forEach(e => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = e; b.setAttribute('aria-label', e);
+        if (e === current) b.classList.add('on');
+        b.addEventListener('click', () => { close(); onPick(e); });
+        grid.appendChild(b);
+      });
+      pop.querySelector('form').addEventListener('submit', ev => { ev.preventDefault(); const v = pop.querySelector('input').value.trim(); if (v) { close(); onPick(v); } });
+      document.body.appendChild(pop);
+      const r = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+      let left = Math.min(Math.max(12, r.left), window.innerWidth - w - 12);
+      let top = r.bottom + 8; if (top + h > window.innerHeight - 12) top = Math.max(12, r.top - h - 8);
+      pop.style.left = left + 'px'; pop.style.top = top + 'px';
+      const outside = ev => { if (!pop.contains(ev.target) && !anchor.contains(ev.target)) close(); };
+      const esc = ev => { if (ev.key === 'Escape') { close(); anchor.focus(); } };
+      function close() { pop.remove(); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', esc); }
+      setTimeout(() => { document.addEventListener('pointerdown', outside, true); document.addEventListener('keydown', esc); }, 0);
+      (pop.querySelector('.on') || grid.firstElementChild).focus();
     };
   </script>
   <script>
@@ -1240,7 +1357,7 @@
         </div>
         <div class="grid grid-cols-3 gap-3">
          <div>
-          <label for="habit-icon" data-template-id="icon-label" class="canva-text block font-semibold mb-2" style="color: #44362f; font-weight: 400; font-style: normal; font-size: 14px;">Icon</label> <input id="habit-icon" data-template-id="icon-input" class="canva-input w-full rounded-xl border border-[#dbdfeb] bg-[#eff1f6] px-3 py-3" maxlength="4" value="✦" required="" placeholder="✦" style="font-weight: 400; font-style: normal; font-size: 16px;">
+          <label for="habit-icon" data-template-id="icon-label" class="canva-text block font-semibold mb-2" style="color: #44362f; font-weight: 400; font-style: normal; font-size: 14px;">Icon</label> <input id="habit-icon" type="hidden" value="✦"><button type="button" id="habit-icon-button" data-template-id="icon-input" aria-label="Choose an icon (current: ✦)" class="canva-input w-full h-[50px] rounded-xl border border-[#dbdfeb] bg-[#eff1f6] px-3 flex items-center justify-center gap-1 cursor-pointer" style="font-size: 22px;"><span id="habit-icon-preview">✦</span><span aria-hidden="true" style="font-size:12px;color:#7a706c">▾</span></button>
          </div>
          <div>
           <label for="habit-color" data-template-id="color-label" class="canva-text block font-semibold mb-2" style="color: rgb(68, 54, 47); font-weight: 400; font-style: normal; font-size: 14px;">Color</label> <input id="habit-color" class="w-full h-[50px] rounded-xl border border-[#dbdfeb] bg-[#eff1f6] p-1 cursor-pointer" type="color" value="#807672">
@@ -1285,7 +1402,7 @@
   <template id="habit-template">
    <div data-template-id="habit-row" class="canva-card habit-row grid items-center gap-2 px-3 py-3" style="grid-template-columns:minmax(215px,2fr) repeat(7,minmax(48px,1fr)) 65px 42px">
     <div class="flex items-center gap-3 min-w-0">
-     <span class="habit-icon w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl" aria-hidden="true"></span>
+     <button type="button" class="habit-icon habit-icon-pick w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl" title="Change icon"></button>
      <div class="min-w-0">
       <p data-template-id="habit-name-text" class="canva-text font-bold truncate"></p>
       <p class="habit-progress text-xs text-[#807672]"></p>
@@ -1364,6 +1481,7 @@
         row.style.setProperty('--habit-color', color);
         const icon = row.querySelector('.habit-icon');
         icon.textContent = record.habit_icon || '✦';
+        icon.setAttribute('aria-label', `Change icon for ${record.habit_name}`);
         icon.style.background = color + '22';
         icon.style.color = color;
         const name = row.querySelector('[data-template-id="habit-name-text"]');
@@ -1429,6 +1547,26 @@
       const id = row.dataset.id;
       const button = event.target.closest('button');
       if (!button) return;
+      if (button.classList.contains('habit-icon')) {
+        const current = pending.get(id)?.desired || records.find(r => r.__backendId === id);
+        if (!current) return;
+        window.openEmojiPicker({ anchor: button, current: current.habit_icon, title: `Icon for ${current.habit_name}`, onPick: async emoji => {
+          if (emoji === current.habit_icon) return;
+          button.textContent = emoji;
+          try {
+            await writeQueue;
+            const latest = pending.get(id)?.desired || records.find(r => r.__backendId === id);
+            const updated = { ...latest, habit_icon: emoji };
+            if (pending.has(id)) pending.get(id).desired = { ...pending.get(id).desired, habit_icon: emoji };
+            const result = await enqueue(() => window.dataSdk.update(updated));
+            if (!result.isOk) { message('Could not change the icon. Please try again.'); render(); return; }
+            records = records.map(r => r.__backendId === id ? { ...r, habit_icon: emoji } : r);
+            render();
+            message('Icon updated.');
+          } catch (_) { message('Could not change the icon. Please try again.'); render(); }
+        } });
+        return;
+      }
       if (button.classList.contains('day-button')) {
         const current = pending.get(id)?.desired || records.find(r => r.__backendId === id);
         if (!current) return;
@@ -1484,6 +1622,7 @@
         if (result.isOk) {
           form.reset();
           document.getElementById('habit-icon').value = '✦';
+          document.getElementById('habit-icon-preview').textContent = '✦';
           message('Habit added.');
         } else message('Could not add the habit. Please try again.');
       } catch (_) { message('Could not add the habit. Please try again.'); }
@@ -1491,6 +1630,14 @@
         addingHabit = false;
         addButton.disabled = false;
       }
+    });
+    document.getElementById('habit-icon-button').addEventListener('click', event => {
+      const btn = event.currentTarget, input = document.getElementById('habit-icon');
+      window.openEmojiPicker({ anchor: btn, current: input.value, title: 'Pick an icon', onPick: emoji => {
+        input.value = emoji;
+        document.getElementById('habit-icon-preview').textContent = emoji;
+        btn.setAttribute('aria-label', `Choose an icon (current: ${emoji})`);
+      } });
     });
     document.getElementById('habit-previous-week').addEventListener('click', () => shiftHabitWeek(-7));
     document.getElementById('habit-current-week').addEventListener('click', () => {
@@ -1522,7 +1669,7 @@
 <html lang="en"><head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20261030-04-cb63f40","C":{"ABeeZee":"YADK31-VBBc,1","Abel":"YAHO2Ehol3g,0","Abhaya Libre":"YAFdJvwa-l0,0","Abril Fatface":"YACgEZbkUVE,0","Aclonica":"YAHO2OEKYj0,0","Acme":"YAHO2Gflqzo,0","Actor":"YAHO2N0IV_4,0","Adamina":"YAHO2Ko8ddg,0","Advent Pro":"YAFdJvNZdCk,0","Afacad":"YAHO2HaK_fU,0","Afacad Flux":"YAHO2DjbA6Y,0","Agrandir":"YAFdJpYuLss,0","Aileron":"YAFdJn5d8s0,0","Akshar":"YAGWNF0jApg,0","Alata":"YAD1aLikJo8,0","Albert Sans":"YAHO2HRfeh4,0","Alegreya":"YAFdJs07v-8,0","Alegreya Sans":"YAFdJvgJ5TU,0","Alegreya Sans SC":"YAFdJuaTEaM,0","Alegreya SC":"YACgEen8jXo,0","Aleo":"YAFdJg_txOU,0","Alex Brush":"YAE2gr0Mbng,0","Alexandria":"YAGVt-AWBcU,0","Alfa Slab One":"YACgEYS9sJU,0","Alice":"YALBszUSD-E,0","Allison":"YAG5KfE49h8,0","Allura":"YACgEap1YR0,0","Almarai":"YAFdJuZe0mI,0","Alumni Sans":"YAHO2DByoho,0","Amaranth":"YACgEaBTFMQ,0","Amatic SC":"YACgEbSBm0k,0","Amiri":"YAEWgjWFb1M,0","Amiri Quran":"YAHO2Enz6cg,0","Amita":"YADK309xYYo,1","Andika":"YACkoFAye4w,0","Anek Bangla":"YAGVuloYrvI,0","Anek Gujarati":"YAHO2NTD_LM,0","Anek Latin":"YAHO2C6lVnU,0","Anek Telugu":"YAHO2KVu8lI,0","Anonymous Pro":"YACgEV9owk4,0","Antic Slab":"YAHO2HJeTP0,0","Anton":"YACgEcYqQ-A,0","Antonio":"YAFdJjZxcpY,0","Anuphan":"YAHO2IhZ4E0,0","Anybody":"YAHO2MTsics,0","Aptos":"YAGi2jFvvq4,1","Arapey":"YADK32AK2Uk,1","Architects Daughter":"YACgEc9BFCs,0","Archivo":"YAHO2-t-jNE,0","Archivo Black":"YACgEZulLoA,0","Archivo Narrow":"YACgEa-oJH8,0","Aref Ruqaa":"YAHO2NMqGdM,0","Arial":"YAGyDvJ_4Ts,0","Arimo":"YACgEZ1cb1Q,0","Arsenal":"YADK3_DWcOc,0","Arvo":"YACgEf17hXM,0","Asap":"YAFdJr0OaFw,0","Asap Condensed":"YAD1fmY3NpE,0","Assistant":"YAFdtfahXt8,0","Atkinson Hyperlegible":"YAFge7Z-F6s,0","Atkinson Hyperlegible Next":"YAHO2IeQVB0,0","Audiowide":"YAHO2MsoafU,0","Avenir":"YAFcfmNq6UY,0","Azeret Mono":"YAHO2EIdDP0,0","Bacasime Antique":"YAHO2JjJq4o,0","Bad Script":"YADK31ojH6A,1","Bagel Fat One":"YAFyG3A11Bw,0","Bai Jamjuree":"YAFdJjI5olU,0","Baloo 2":"YAHO2IcQUcM,0","Baloo Bhaijaan 2":"YAHO2NwTj3Y,0","Baloo Da 2":"YAHO2LicHPY,0","Balsamiq Sans":"YAE3C_w4eo8,0","Bangers":"YAD5qTdjGKo,1","Barlow":"YAFdJsyuOPM,1","Barlow Condensed":"YAFdJljEuFc,0","Barlow Semi Condensed":"YAFdJu55qXI,0","Baskervville":"YAHO2JTYNKo,0","Beau Rivage":"YAHO2NDDGu0,0","Bebas Neue":"YACgESME5ew,0","Belanosima":"YAHO2KW8vyU,0","Bellefair":"YADSJ8TFXwA,0","Belleza":"YADK3w_fTc4,0","BenchNine":"YAHO2Gl7yMc,0","Berkshire Swash":"YACgEa7uPMI,0","Besley":"YAHO2BTXWYc,0","Bevan":"YACkoDaMIbc,0","Big Shoulders Display":"YAFdJs8L2aw,0","Birthstone":"YAGXhLyeE6I,0","Biryani":"YAFdtZ_PRAs,0","Bitter":"YACkoOF0Xck,0","BIZ UDPGothic":"YAGWY3VAK4Q,0","Black Ops One":"YACgEaY4FIU,0","Blinker":"YAFdJoBYX9o,0","Bodoni Moda":"YAHO2C7VUJE,0","Bowlby One":"YAHO2EunPos,0","Bowlby One SC":"YAHO2J38FUs,0","Bree Serif":"YACkoD1yZN0,0","Bricolage Grotesque":"YAFyMcdwzpc,0","Bubblegum Sans":"YAHO2JdFc_U,0","Bungee":"YALBszL9wLA,0","Bungee Shade":"YACkoPYyrRk,0","Cabin":"YAFdJnEgsb0,0","Cabin Condensed":"YAHO2F-FVVw,0","Cairo":"YAFdtXpDzlQ,0","Caladea":"YAD1hHx0kVU,0","Calistoga":"YAD1aIFxe3I,1","Cambria":"YAFcfgNlM2Y,0","Cantarell":"YAHO2LSCGX4,0","Canva Sans":"YAFdJjTk5UU,1","Canva Sans Display":"YAFTjyMT8Hc,0","Caprasimo":"YAHO2PYTkbo,0","Capriola":"YALBs4liG7k,0","Cardo":"YACkoGIT9qo,0","Carlito":"YACkoIZXsrc,0","Carter One":"YACgEZJ1Flw,0","Castoro":"YAHO2cDcmVM,0","Catamaran":"YAFdJhPTLAc,0","Caveat":"YALBs2ploWQ,0","Caveat Brush":"YALBs8ZVRhw,0","Chakra Petch":"YAD1fCkY3IQ,0","Changa":"YAFdJtbG8fw,0","Changa One":"YAHO2WdsbtM,0","Chango":"YADK37RW0po,0","Charis SIL":"YAGvf-G3GGU,0","Charm":"YAD1b_s4o-w,0","Chelsea Market":"YAHO2UOd5sY,0","Chewy":"YACgEZfALnA,0","Chivo":"YAHO2WvGfDs,0","Chivo Mono":"YAHO2Qd3y5g,0","Chonburi":"YALBsz_RTwU,0","Cinzel":"YACgEeV8bIQ,0","Cinzel Decorative":"YAEe9XbWpNs,0","Climate Crisis":"YAFdJnbiwgQ,0","Comfortaa":"YAFdJoWmhxU,0","Comic Neue":"YAHO2VMiyZo,0","Commissioner":"YAHO2RRI-KE,0","Concert One":"YAFyG1vOkaw,0","Consolas":"YAFcfu6YYdE,0","Cookie":"YAHO2TxA9Mk,0","Cormorant Garamond":"YAFdJhX-538,0","Cormorant Infant":"YAHO2cgbXjc,0","Cormorant SC":"YAFdJg7KuRM,0","Cormorant Unicase":"YAHO2b4ohVo,0","Courgette":"YACgEU5nS9M,0","Courier New":"YAGzXiGs0_8,0","Courier Prime":"YAD1aFjegN8,0","Cousine":"YADK35VyDYU,0","Crete Round":"YAHO2Uu9SvI,0","Crimson Pro":"YAFdJsEGkW0,0","Crimson Text":"YAHO2RsfBzg,0","Cuprum":"YACkoB3fESg,0","Cutive Mono":"YAHO2cov6H4,0","Damion":"YAHO2SxDErM,0","Dancing Script":"YALBs2pfuW0,0","Darker Grotesque":"YAD1acp_tgc,1","DejaVu Sans":"YAFdtfpl0Yc,0","Delius":"YAHO2f1B8B4,0","Dhurjati":"YAHO2RElIME,0","Didact Gothic":"YALBs-mIj2o,0","DM Mono":"YAHO2SGpw0w,0","Cause":"YAD1aU3sLnI,0","DM Serif Display":"YAD1aYG82rc,0","Domine":"YAHO2bbCOA4,0","Dongle":"YAGXDU1dmuc,0","Doppio One":"YAHO2ckhWaI,0","Dosis":"YAFdte3F-n0,1","DotGothic16":"YAHO2fxQNHM,0","DynaPuff":"YAFyMRnxBDs,0","East Sea Dokdo":"YAHO2V39uyM,0","Eater":"YAHO2VpLF0c,0","EB Garamond":"YAFdJtfMD6Y,0","Economica":"YACgEeIOo5w,0","Eczar":"YAFdJrnVElk,0","Edo":"YADoUIDNzaE,1","El Messiri":"YAFdJoZarj8,0","Encode Sans":"YAHO2R-vLyo,0","Encode Sans Condensed":"YAHO2RQWhbg,0","Epilogue":"YAHO2WWHRqI,0","Exo":"YACgEf2dbI4,0","Exo 2":"YAFdJor4M6A,1","Fahkwang":"YAFdJp0SJos,0","Familjen Grotesk":"YAHO2ZriIzU,0","Faustina":"YAFdJnqy8Oc,0","Figtree":"YAHO2b-mV7A,0","Fira Code":"YAFdJsxBlTg,0","Fira Mono":"YAHO2bTKfjg,0","Fira Sans":"YAFdJnJKOPE,0","Fira Sans Condensed":"YAHMLJN-FcA,0","Fira Sans Extra Condensed":"YAHMLGqUb6Q,0","Fjalla One":"YAHO2VMyTKw,0","Fondamento":"YAHO2X_okmA,0","Forum":"YACgEcnnqB4,0","Fragment Mono":"YAHO2ZlYXZc,0","Francois One":"YADK3zbC6RM,0","Frank Ruhl Libre":"YAFdJiGIKxQ,0","Cause":"YAFdJpU7Kkk,0","Fredoka":"YACgEZml080,0","Fugaz One":"YAHO2f5L5K0,0","Funnel Display":"YAHO2TmVuEs,0","Funnel Sans":"YAHO2R0FK5U,0","Futura":"YAFcfgcNhWk,3","Gabarito":"YAHO2cD3JmI,0","Gaegu":"YAFdJj615Ls,0","Gantari":"YAHO2WveuBo,0","Garamond":"YAFcfhlhK9c,0","Geist":"YAHO2SfKS30,0","Geist Mono":"YAHO2XOe8v8,0","Gelasio":"YAHO2e426-k,0","Gentium Book Plus":"YAHO2b-adyU,0","Geologica":"YAHMLpZ3y5c,0","Geom":"YAHMLFz7unQ,0","Georama":"YAHO21l9KR8,0","Georgia":"YAGzXkO0pEM,0","GFS Didot":"YADK39vXpyU,0","Gilda Display":"YADK34sD2QM,0","Gilroy":"YAFcf0f10mQ,0","Gloock":"YAHO2WVhd0Q,0","Gloria Hallelujah":"YALBs50JjRs,0","Gochi Hand":"YACgEWWPgRQ,0","Goldman":"YAHO2TATES8,0","Golos Text":"YAHO2QlqAQk,0","Google Sans":"YAHO2dYZ4Uw,0","Google Sans Code":"YAHO2XdQwlA,0","Google Sans Flex":"YAHO2e8mtck,0","Gotham":"YAFcfr0ZwUA,0","Goudy Bookletter 1911":"YAHO2X7CqQQ,0","Gowun Batang":"YAGXDQtk-ic,0","Gowun Dodum":"YAGXDZ921io,0","Graduate":"YACgEajwz7Y,0","Grandstander":"YAHO2bN2hd8,0","Gravitas One":"YAHO2WtqHRw,0","Great Vibes":"YACgEX27qLg,0","Grenze":"YAFdJpFWOZM,0","Gruppo":"YACgEbcz8MU,0","Gudea":"YAHO2WlVs30,0","Hahmlet":"YAGXDTqs4Ac,0","Hammersmith One":"YACgEWNFnT4,0","Handlee":"YAHO2U9C-xI,0","Hanken Grotesk":"YAHO2VB9G0I,0","Heebo":"YAFdJqqaebw,0","Helvetica":"YAFcf7zkXN0,0","Hind Guntur":"YAFdJq1FbIc,0","Hind Madurai":"YAFdJtsMgQk,0","Hind Siliguri":"YAFdJodBWQk,0","Hind Vadodara":"YAFdJrnuAas,0","HK Grotesk":"YAFdJsjyMsM,0","Homemade Apple":"YADK3zBTjLs,0","Host Grotesk":"YAHO2VztvdY,0","Hubot Sans":"YAHO2cDVt0E,0","Huninn":"YAHO2dG1YxU,0","Ibarra Real Nova":"YAD1aDS1Jq8,0","IBM Plex Mono":"YAFdJkmvhGI,0","IBM Plex Sans":"YAFdJgT0SHI,0","IBM Plex Sans Arabic":"YAGVuEYCNg0,1","IBM Plex Sans Condensed":"YAFdJrPBof8,0","IBM Plex Sans JP":"YAGWY6rvaqo,0","IBM Plex Sans KR":"YAGXDbUrwEo,0","IBM Plex Sans Thai":"YAFdJkdZC28,0","IBM Plex Serif":"YAFdJt16xgA,0","IM Fell English":"YAHO2QB0QVo,0","IM Fell English SC":"YACgERmrc6I,0","IM Fell French Canon":"YAHO2bMvABs,0","Impact":"YAFcfnjI7Vk,0","Inclusive Sans":"YAGzRvSP2H0,0","Inconsolata":"YAHO2SpO-5g,0","Indie Flower":"YAHO2aaUih8,0","Instrument Sans":"YAHO2bKyaSQ,0","Instrument Serif":"YAHFeOnZNEk,0","Inter":"YAFdJvSyp_k,3","Inter Tight":"YAHO2Wv04Hw,0","Istok Web":"YAHO2XNFLkI,0","Italiana":"YAHO2Toik_w,0","Italianno":"YADK33wZXP4,1","Itim":"YAE0Z3ly4AQ,0","Jacques Francois":"YAHO2a5g66Q,0","Jersey 10":"YAHO2QXCPBA,0","Jersey 25":"YAHO2b0HdSo,0","JetBrains Mono":"YAFdJksXcAk,0","Josefin Sans":"YAFdJjvw9Ps,0","Josefin Slab":"YACgEQmaEIc,0","Jost":"YAHO2TSelXg,0","Jua":"YADK3-gZSDU,0","Julius Sans One":"YACgET-7cBI,0","Jura":"YAFdJmtyccY,0","Kaisei Decol":"YAGWY5xJxfk,0","Kalam":"YAFdJrEg2ic,0","Kanit":"YAHO2TvSf7E,0","Kantumruy Pro":"YAHO2SVqwqY,0","Karla":"YAHO2V2NSXM,0","Kaushan Script":"YACgEbGmrJs,0","Khand":"YAFdJm18w3g,0","Khula":"YAFdJvaOkWI,0","Kiwi Maru":"YAFdJmm1njU,0","Klee One":"YAHO2dadxts,0","Knewave":"YACgEYSBEEA,0","Kodchasan":"YAFdJmfmzeo,0","Kosugi Maru":"YAEhL82apSM,0","Krub":"YAFdJl9ACwk,0","Kumbh Sans":"YAHO2UjzjpM,0","La Belle Aurore":"YAHO2QKdLHU,0","Lalezar":"YACkoB188Y0,0","Lato":"YAFdJuFCnaw,0","League Gothic":"YACgEZ1OEPI,0","League Spartan":"YACgEcnJpjs,0","Leckerli One":"YAGX4ddZAAg,0","Lemonada":"YAFdtQVfQCk,0","Lexend":"YAHO2SCkHoU,0","Lexend Deca":"YAD9UdTHECk,0","Lexend Exa":"YAD9UUZHL7I,0","Lexend Giga":"YAD9UYAqrOc,0","Lexend Mega":"YAD9UdrjgZw,0","Lexend Zetta":"YAD9UYrErMw,0","Libre Baskerville":"YACgEUFdPdA,0","Libre Bodoni":"YAHO2fbN094,0","Libre Caslon Display":"YAHO2XhLmt0,0","Libre Caslon Text":"YAHO2USylHk,0","Libre Franklin":"YAFdJr3SNlU,1","Lilita One":"YACgEblklxo,0","Limelight":"YACgEUpkTXE,0","LINE Seed JP":"YAHO2d8yXa4,0","Literata":"YAD1b0SpOHQ,0","Lobster":"YAD8SnSjSFI,0","Lobster Two":"YACgEesdoec,0","Londrina Solid":"YAFdJnyMeQE,0","Lora":"YACgEXvxf8Q,0","Luckiest Guy":"YADK4PnlFRs,0","Lusitana":"YAHO2SveFfM,0","LXGW WenKai TC":"YAHO2ehQ5_o,0","M PLUS 1p":"YAHO2fozO7I,0","M PLUS 2":"YAHO2RUGZcQ,0","Ma Shan Zheng":"YAD1b3yES34,0","Mada":"YAFd-HxC1Y0,0","Maitree":"YAFdJh4v5pY,0","Mali":"YAFdJh7OuNE,0","Manrope":"YAHO2b2feC4,0","Mansalva":"YAD1aZCCYU8,1","Marcellus":"YADK4L2nGbg,0","Marck Script":"YALBs9DBETo,0","Martel":"YAFdtY7FRH8,1","Martian Mono":"YAHO2YhUMkk,0","Mate":"YAHO2eaPuMk,0","Maven Pro":"YAFdJgCyb_c,0","Mea Culpa":"YAHO2UQx4WU,0","MedievalSharp":"YAHO2XoH9qQ,0","Megrim":"YACgEQu0pLY,0","Meiryo":"YAGmJPEz0BM,0","Merienda":"YAGXhISLJkY,0","Merriweather":"YACgEXvHxxs,0","Merriweather Sans":"YAFdJorZgto,1","Michroma":"YADK4IYX8vY,0","Mitr":"YAFdJh-DKf0,0","Mona Sans":"YAHO2XGz2BM,0","Monda":"YADK34lACd0,1","Monoton":"YALBs_hWWG8,0","Mont":"YAFdJgul-2U,0","Montserrat":"YAFdtQi73Xs,0","Montserrat Alternates":"YAHO2d5URdI,0","Mooli":"YAHO2QudnvU,0","More Sugar":"YAFdJkVWBPo,1","Mountains of Christmas":"YAHO2f6R-YA,0","Mr Dafoe":"YACgEbw4BXM,0","Mrs Saint Delafield":"YAHO2Tnt53k,0","Ms Madi":"YAHO2SBc4rI,0","Mukta":"YAFdJjsZaSM,0","Muli":"YAFdtZAC0Mk,0","Mulish":"YAHO28rytyw,0","Nanum Myeongjo":"YAFdJqiu4VY,0","Neucha":"YAEkTBQffFg,0","Neuton":"YAFdtcDBvdA,0","New Rocker":"YAHO2YI8rWg,0","News Cycle":"YACkoEMGWek,0","Nothing You Could Do":"YAHO2WqRm_c,0","Noticia Text":"YACkoDm0xlE,0","Noto Color Emoji":"YAGumpcTCok,0","Noto Kufi Arabic":"YACkoGW2dTA,0","Noto Naskh Arabic":"YACkoI8Oj1c,0","Noto Nastaliq Urdu":"YAGU_Q5u0w4,0","Noto Sans":"YACkoCjjZNk,0","Noto Sans Bengali":"YAFdJjnhMdI,0","Noto Sans Devanagari":"YAFdJnKmmqM,0","Noto Sans Display":"YAHO2eyZBeY,0","Noto Sans Ethiopic":"YAHO20DfUMM,0","Noto Sans Georgian":"YACkoFKxqWs,0","Noto Sans HK":"YAHO2fCytzw,0","Noto Sans JP":"YAFdJiHXlcI,0","Noto Sans Khmer":"YACkoFdRIJM,0","Noto Sans KR":"YAGsojZj-RQ,0","Noto Sans Lao":"YAHO2f6jVpw,0","Noto Sans Lao Looped":"YAHO2TSQjpA,0","Noto Sans Malayalam":"YACkoMzSo98,0","Noto Sans Mono":"YAHO2TFVtN0,0","Noto Sans Myanmar":"YACkoPHEdMk,0","Noto Sans SC":"YAHO2hDCDFM,0","Noto Sans Sinhala":"YACkoJiU_Ak,0","Noto Sans Symbols":"YAHO2n0Zh0w,0","Noto Sans Tamil":"YAHO2r9jkew,0","Noto Sans TC":"YAHO2pzGHBE,0","Noto Sans Telugu":"YAHO2uFAQs4,0","Noto Serif":"YACkoGNq-XY,0","Noto Serif Bengali":"YAGVuu_j8c8,0","Noto Serif Devanagari":"YAGWNWUpY9s,0","Noto Serif Display":"YAFdJllHsUM,0","Nunito":"YAFdJoNRMmU,1","Nunito Sans":"YAFdtQJYB9w,1","Old Standard TT":"YAHO2lhtDcg,0","Oleo Script":"YACgEQQ14jI,0","Onest":"YAHO2kaArOY,0","Open Sans":"YAFdJt8dAY0,1","Open Sans Condensed":"YAD7Rf0lmm4,1","Open Sans Hebrew":"YAFdJlARYMY,0","Optima":"YAFcf0Fltlg,0","Orbit":"YAFyMQm0Z54,0","Orbitron":"YAHO2tXXH_o,0","Oswald":"YACgEQY10lw,0","Outfit":"YAHO2nVlg14,0","Overpass":"YAFdJhmdIMM,1","Oxanium":"YAHO2kINDn0,0","Oxygen":"YAHO2nOU31A,0","Pacifico":"YADLjORQ1u4,0","Pangolin":"YADK4DH4-fM,0","Parisienne":"YACgERSYqTw,0","Parkinsans":"YAHO2j-ZSEo,0","Passion One":"YAFdJo9cFec,0","Pathway Gothic One":"YACkoMQo7Mc,0","Patrick Hand":"YAHO2swKcgg,0","Patua One":"YAHO2qRZWLE,0","Paytone One":"YALBs8J6By4,0","Permanent Marker":"YACgEcB-r-s,0","Petrona":"YADK4PUbnVg,1","Philosopher":"YAEkTCvkg7Q,0","Pinyon Script":"YACgEQzTJgs,0","Pirata One":"YALBs3j2Xx0,0","Pixelify Sans":"YAHO2v5ARTA,0","Play":"YADK4EFto8o,0","Playball":"YAHO2hWLQJ0,0","Playfair Display":"YAFdJhem5V8,1","Playfair Display SC":"YACgESE7eJQ,0","Playwrite VN":"YAHO2_bSM7Y,0","Plus Jakarta Sans":"YAHO2gdhi18,0","Poiret One":"YAHO2nweLas,0","Pontano Sans":"YAHO2t91rWw,0","Poppins":"YAFdJjbTu24,1","Prata":"YACgES4qGnk,0","Press Start 2P":"YAFyGr-8pmQ,0","Pridi":"YAFdJmJ3gqA,0","Prompt":"YAFdJmA6sOY,0","Proxima Nova":"YAFcfjveRFU,0","Proxima Nova Condensed":"YAFcfiSm_SA,0","Proza Libre":"YAHO2nv0NKc,0","PT Mono":"YAHO2lnK_7w,0","PT Sans":"YACgEYbsV-E,0","PT Sans Caption":"YAHO2oZpTQc,0","PT Sans Narrow":"YAHO2glZymI,0","PT Serif":"YACgEcU7Qg4,0","Public Sans":"YAFdJj8NdaU,1","Pyidaungsu":"YACkoGGC7sA,0","Quantico":"YAHO2me4bVc,0","Quattrocento":"YACgEcL5b3s,0","Quattrocento Sans":"YAHO2vuaC0Y,0","Questrial":"YADK4LSvvyE,1","Quicksand":"YAFdJpYtCxE,1","Racing Sans One":"YACgEbcqMPM,0","Radio Canada":"YAHO2qxyljs,0","Radio Canada Big":"YAHO2r7P8wg,0","Rajdhani":"YAFdJoWaWgo,0","Raleway":"YAFdJhmxbVQ,1","Ramabhadra":"YACkoN_hhSs,0","Rammetto One":"YAHO2nAqWuQ,0","Rasa":"YAFdJg-9rGY,0","Readex Pro":"YAGVt3RBO3c,0","Recursive":"YAHO2oZn01g,0","Red Hat Display":"YAD1bzs0p0Y,0","Red Hat Mono":"YAHO2gB0kV8,0","Red Hat Text":"YAHO21kkNWg,0","Reddit Sans":"YAHO2kKAR-8,0","Reem Kufi":"YADSJ0ceOYQ,0","Reenie Beanie":"YAHO2s4qTnk,0","Rethink Sans":"YAHO2q9_FzY,0","Righteous":"YAHO2oo4-So,0","Roboto":"YACgEev4gKc,0","Roboto Condensed":"YACgEan-tYE,0","Roboto Flex":"YAHO2nqK4E8,0","Roboto Mono":"YAFdJkvp3-k,0","Roboto Slab":"YAFdJswIKAg,0","Rock Salt":"YAHO2vFSVxE,0","Rockwell":"YAFcfyVZnN0,0","Rokkitt":"YAFdJnlBl3o,0","Ropa Sans":"YACkoCA_LhY,0","Rowdies":"YAFyL2wl4FI,0","Rozha One":"YACkoMIfZVA,0","Rubik":"YAFdJsMWVVc,0","Rubik Dirt":"YAFyHRD_ZDY,0","Rubik Mono One":"YAHO2qtMuC0,0","Rubik Wet Paint":"YAHO2mLD_X0,0","Ruda":"YAFdJuuBNyM,1","Rye":"YACgEdQP21k,0","Sacramento":"YACgEf5ivwU,0","Saira":"YAFdJk33d3s,0","Saira Condensed":"YAFdJuBuAxg,0","Saira Extra Condensed":"YAFdJiQUvWc,0","Saira Semi Condensed":"YAHO2gfd5g8,0","Saira Stencil One":"YAD1aV1l2HE,0","Sanchez":"YACgEbBJLy8,0","Sarabun":"YAFdJssSnME,0","Sarala":"YADK4LF5xeY,0","Satisfy":"YACgEf5XTk0,0","Sawarabi Mincho":"YAD1faq7yjk,0","Scheherazade New":"YAHO2sxcjiY,0","Schibsted Grotesk":"YAHO2sWydRk,0","Segoe Script":"YAF3uTF1s5I,0","Segoe UI":"YAHNdRD1Klw,0","Sen":"YAHO2h5vrRE,0","Shadows Into Light":"YAHO2tztN1k,0","Share Tech":"YAHO2q4NPs0,0","Share Tech Mono":"YAHO2oHio98,0","Shippori Mincho":"YAGWZNRJkO8,0","Shippori Mincho B1":"YAGWZJnXF8c,0","Shrikhand":"YACkoEA0Kc0,0","Signika":"YACgEfiK7GI,0","Signika Negative":"YAHO2rWYEng,0","Silkscreen":"YAHO2rdlQ_o,0","Skranji":"YAHO2uPivlQ,0","Slabo 13px":"YAHO2hvaP1I,0","Slabo 27px":"YAHO2n--yeE,0","Smooch Sans":"YAHO2tPdb20,0","Sniglet":"YACgEUJSCy8,0","Sofia":"YAHO2kq3qHg,0","Sofia Sans":"YAHMLUINeco,0","Sofia Sans Condensed":"YAHMLQmSo-Y,0","Sofia Sans Extra Condensed":"YAHMLV0fp0c,0","Sora":"YAHO2rDTR1E,0","Sorts Mill Goudy":"YADK4Fi0R2c,0","Source Code Pro":"YAHO2tzIJbg,0","Source Sans 3":"YAG4lO1Mj10,0","Source Sans Pro":"YACgEQzTv38,0","Source Serif Pro":"YACgEfdj394,0","Space Grotesk":"YAHO2sjPCSM,0","Space Mono":"YADW1-vpsoc,0","Special Elite":"YACgEYVlm9Q,0","Special Gothic Expanded One":"YAHO2oaS0m0,0","Spectral":"YAHO2rVUHIM,0","Spline Sans":"YAHO2rZC9CE,0","Squada One":"YADK4PDlAAM,0","Sriracha":"YALBs4sJbXs,0","Staatliches":"YAD1bzJCL-s,0","Stardos Stencil":"YADK4Mu_Xj0,1","STIX Two Text":"YAHO2joycuk,0","Suez One":"YACkoJMi7_c,0","Syncopate":"YAHO2iXpgDY,0","Syne":"YAHML9oLRPc,0","Tahoma":"YAFcfipOFgg,0","Tajawal":"YAFdJg45t1g,0","Tangerine":"YADK4L8oUVI,0","Taviraj":"YAFdJjquxqU,0","Teko":"YAFdJsF6lbU,0","Tektur":"YAHMLdkk1tM,0","Tenor Sans":"YACgEVY5j_w,0","Tilt Warp":"YAHO2uqld84,0","Times New Roman":"YAGzXW3gftg,0","Tinos":"YACkoJyNZF4,0","Tiro Bangla":"YAGVuiG7jnE,0","Tiro Devanagari Hindi":"YAGWNCjUq0o,0","Titan One":"YAHO2v8eA3A,0","Titillium Web":"YAFdtTOE9xo,0","Tomorrow":"YAFdJlW65k4,0","Traditional Arabic":"YAGLszSchGc,0","Trebuchet MS":"YAFcfrglpVA,0","Trocchi":"YACgEV-yq04,0","Turret Road":"YAHO2pKQLYQ,0","Ubuntu":"YACgERDU--Q,0","Ubuntu Condensed":"YAHO2nCaahY,0","Ubuntu Mono":"YAHO2g6B-Uo,0","Ubuntu Sans":"YAHO2kypvWc,0","Ultra":"YACgEWHSPx0,0","Unbounded":"YAHO2rkdmWY,0","Unica One":"YALBs74Pdjc,0","UnifrakturCook":"YAHO2srzKxY,0","UnifrakturMaguntia":"YACgEZRHDPA,0","Unna":"YADK4PtOh7E,0","Urbanist":"YAHO2o1IFy0,0","Varela":"YAHO2gPi4IU,0","Varela Round":"YALBs2IK6rw,0","Vazirmatn":"YAHO2z1lH5c,0","Verdana":"YAGzXTctYtQ,0","Vidaloka":"YACgEdRnAX0,0","Viga":"YAHO2v8Lzbg,0","Volkhov":"YAHO2uWq-qg,0","Vollkorn":"YAFdJli9wSA,0","VT323":"YACgEYI9BCI,0","Wix Madefor Display":"YAHO2o-Qfis,0","Wix Madefor Text":"YAHO2rU16Qc,0","Work Sans":"YAGXhLOKv44,0","Yanone Kaffeesatz":"YAFdtbpuM0E,0","Yantramanav":"YAFdJuZAcfY,0","Yatra One":"YACkoJ228Ho,0","Yellowtail":"YACgEYG4kG4,0","Yeseva One":"YALBs4GWnJw,0","Ysabeau":"YAHMLjcdG48,0","Ysabeau Office":"YAHO2uUYDYI,0","Yuji Boku":"YAFGHcN5e_Y,0","Yusei Magic":"YAEhL8RNAMk,0","Zain":"YAHO2lC1Xkw,0","Zalando Sans":"YAHO2k5OK-M,0","Zalando Sans Expanded":"YAHO2h6OPds,0","Zen Kaku Gothic Antique":"YAHO2u8F_xk,0","Zen Kaku Gothic New":"YAHO2tS_yps,0","Zen Maru Gothic":"YAFdJgMrcdw,0","Zen Old Mincho":"YAHO2tMwaEs,0","Zeyada":"YAHO2lP62P0,0","Zilla Slab":"YAFdJpPotmI,0"}}');</script><script src="/_sdk/640c2c9485552aa0.telemetry_sdk.js" integrity="sha512-x7sJNwBS9reCVXham9nBdUp9EtXT/bbNZQpT1cWbDa+n6qr1jm8WdBMFUK+gVfm5CtLZVOtKSGRXT0C+rD4Hdw=="></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quarterly Dashboard</title>
+  <title>Monthly Overview</title>
   <style>
     :root { --ink:#44362f; --muted:#44362f; --line:#dbdfeb; --cream:#ffffff; --green:#44362f; --orange:#fdbfce; }
     * { box-sizing:border-box; }
@@ -1554,16 +1701,16 @@
     <div class="max-w-7xl mx-auto px-5 sm:px-8 py-6 flex flex-wrap gap-5 items-center justify-between">
      <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-[#44362f] text-[#fdbfce] grid place-items-center" aria-hidden="true"><i data-lucide="layers-3" class="w-5 h-5"></i>
-      </div><span data-template-id="brand" class="canva-text font-bold tracking-tight" style="color: #44362f; font-weight: 700; font-style: normal; font-size: 16px;">THE QUARTERLY</span>
+      </div><span data-template-id="brand" class="canva-text font-bold tracking-tight" style="color: #44362f; font-weight: 700; font-style: normal; font-size: 16px;">MONTHLY OVERVIEW</span>
      </div><span data-template-id="header-note" class="canva-text text-sm text-[#44362f]" style="color: #807672; font-weight: 400; font-style: normal; font-size: 16px;">A little clarity for the bigger picture.</span>
     </div>
    </header>
    <main class="max-w-7xl mx-auto px-5 sm:px-8 py-9 sm:py-12">
     <section class="rise flex flex-wrap items-end justify-between gap-6 mb-9" aria-labelledby="page-title">
      <div>
-      <p data-template-id="eyebrow" class="canva-text eyebrow text-xs font-bold text-[#fdbfce] mb-3" style="color: #fdbfce; font-weight: 700; font-style: normal; font-size: 12px;">YOUR QUARTERLY NOTEBOOK</p>
+      <p data-template-id="eyebrow" class="canva-text eyebrow text-xs font-bold text-[#fdbfce] mb-3" style="color: #fdbfce; font-weight: 700; font-style: normal; font-size: 12px;">YOUR MONTHLY NOTEBOOK</p>
       <h1 id="page-title" data-template-id="page-title" class="canva-text leading-tight tracking-tight" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 32px;">Goals, wins &amp; ideas</h1>
-      <p data-template-id="intro" class="canva-text mt-3 text-[#807672] max-w-xl" style="color: #807672; font-weight: 400; font-style: normal; font-size: 16px;">Quarterly goals, the good stuff and the parking lot. Spending, budgets and balances now live in Finances.</p>
+      <p data-template-id="intro" class="canva-text mt-3 text-[#807672] max-w-xl" style="color: #807672; font-weight: 400; font-style: normal; font-size: 16px;">Monthly goals, the good stuff and the parking lot. Spending, budgets and balances now live in Finances.</p>
      </div><button id="quarter-open-form" data-template-id="add-button" type="button" class="canva-button bg-[#44362f] text-white rounded-xl px-5 py-3 font-semibold hover:bg-[#44362f] transition flex items-center gap-2" style="background: rgb(68, 54, 47); color: rgb(255, 255, 255);"><i data-lucide="plus" class="w-4 h-4" aria-hidden="true"></i><span data-template-id="add-button-text" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 16px;">Add an entry</span></button>
     </section>
     <div class="rise flex flex-wrap items-center justify-between gap-4 mb-6" style="animation-delay:.08s">
@@ -1684,12 +1831,12 @@
     <section role="dialog" aria-modal="true" aria-labelledby="quarter-form-heading" class="max-w-lg mx-auto my-6 sm:my-12 bg-[#eff1f6] rounded-2xl shadow-2xl p-6 sm:p-8">
      <div class="flex items-start justify-between gap-3 mb-6">
       <div>
-       <p data-template-id="form-kicker" class="canva-text eyebrow text-xs font-bold text-[#807672] mb-2" style="color: #807672; font-weight: 700; font-style: normal; font-size: 12px;">YOUR QUARTERLY NOTEBOOK</p>
+       <p data-template-id="form-kicker" class="canva-text eyebrow text-xs font-bold text-[#807672] mb-2" style="color: #807672; font-weight: 700; font-style: normal; font-size: 12px;">YOUR MONTHLY NOTEBOOK</p>
        <h2 id="quarter-form-heading" data-template-id="form-heading" class="canva-text" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 24px;">Add an entry</h2>
       </div><button id="close-form" type="button" aria-label="Close entry form" class="rounded-lg p-2 hover:bg-[#eff1f6]"><i data-lucide="x" class="w-5 h-5"></i></button>
      </div>
      <form id="entry-form" class="space-y-4">
-      <div><label data-template-id="type-label" class="canva-text block text-sm font-semibold mb-2" for="entry-type" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 14px;">Entry type</label><select id="entry-type" class="field" required=""><option value="goal">Quarterly goal</option><option hidden disabled value="credit">Credit card</option><option hidden disabled value="savings">Savings bucket</option><option hidden disabled value="checking">Checking account</option><option value="achievement">Achievement</option><option value="idea">Parking lot idea</option></select>
+      <div><label data-template-id="type-label" class="canva-text block text-sm font-semibold mb-2" for="entry-type" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 14px;">Entry type</label><select id="entry-type" class="field" required=""><option value="goal">Monthly goal</option><option hidden disabled value="credit">Credit card</option><option hidden disabled value="savings">Savings bucket</option><option hidden disabled value="checking">Checking account</option><option value="achievement">Achievement</option><option value="idea">Parking lot idea</option></select>
       </div>
       <div id="category-field"><label data-template-id="category-label" class="canva-text block text-sm font-semibold mb-2" for="entry-category" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 14px;">Category</label><select id="entry-category" class="field"><option value="Finance">Finance</option><option value="Health">Health</option><option value="Business">Business</option><option value="Personal">Personal</option></select>
       </div>
@@ -2105,27 +2252,22 @@
  </head>
  <body data-template-id="__page-root" class="w-full m-0" style="background: rgb(255, 255, 255);">
   <div id="page-5" class="app-wrapper">
-   <header data-template-id="site-header" class="canva-header w-full px-5 sm:px-8 py-5 border-b border-[#dbdfeb]" style="background: rgb(255, 255, 255);">
+   <header data-template-id="site-header" class="canva-header w-full px-5 sm:px-8 py-5" style="background: transparent;">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
      <div class="flex items-center gap-3">
       <div aria-hidden="true" class="w-9 h-9 rounded-md bg-[#44362f] text-[#eff1f6] flex items-center justify-center text-xl font-serif">
        ✦
       </div><span data-template-id="brand-name" class="canva-text font-bold tracking-tight" style="color: rgb(68, 54, 47); font-weight: 700; font-style: normal; font-size: 16px; letter-spacing: 0.06rem;">THE READING ROOM</span>
-     </div><a data-template-id="kindle-link" class="canva-link inline-flex items-center rounded-full border border-[#dbdfeb] px-4 py-2 text-sm font-semibold hover:bg-[#d0efef] transition" href="https://read.amazon.com/" target="_blank" rel="noopener noreferrer" style="color: rgb(68, 54, 47); font-weight: 600; font-style: normal; font-size: 14px;">Open Kindle ↗</a>
+     </div>
     </div>
    </header>
    <main class="max-w-6xl mx-auto w-full px-5 sm:px-8 py-10 sm:py-16">
-    <div class="grid lg:grid-cols-[minmax(0,1fr)_310px] gap-8 lg:gap-14 items-end mb-11">
+    <div class="mb-11">
      <div>
       <p data-template-id="eyebrow" class="canva-text uppercase tracking-[.22em] font-bold mb-4" style="color: #fdbfce; font-weight: 700; font-style: normal; font-size: 12px;">A HOME FOR YOUR NEXT CHAPTER</p>
       <h1 data-template-id="page-title" class="canva-text leading-[1.12] max-w-2xl mb-5" style="color: #44362f; font-weight: 600; font-style: normal; font-size: 32px;">Keep the books that stay with you.</h1>
       <p data-template-id="intro" class="canva-text max-w-xl leading-relaxed" style="color: rgb(68, 54, 47); font-weight: 400; font-style: normal; font-size: 18px;">Find your next read, keep track of what’s on your shelf, and make room for every story in between.</p>
      </div>
-     <aside data-template-id="kindle-note-card" class="canva-card rounded-2xl p-5 border border-[#dbdfeb]" style="background: rgb(208, 239, 239);">
-      <span aria-hidden="true" class="text-2xl">↗</span>
-      <h2 data-template-id="kindle-note-title" class="canva-text mt-2 mb-2" style="color: rgb(68, 54, 47); font-weight: 600; font-style: normal; font-size: 24px;">Read on Kindle</h2>
-      <p data-template-id="kindle-note-copy" class="canva-text leading-relaxed" style="color: rgb(68, 54, 47); font-weight: 400; font-style: normal; font-size: 14px;">The link opens Kindle in a new tab. Kindle does not provide a public library sync for this tracker, but you can search multiple book catalogs below and add books to your shelf.</p>
-     </aside>
     </div>
     <section aria-labelledby="search-heading" class="mb-12">
      <div class="flex items-center gap-3 mb-5"><span aria-hidden="true" class="text-[#fdbfce]">✳</span>

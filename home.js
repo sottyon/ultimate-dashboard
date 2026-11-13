@@ -18,7 +18,7 @@
   const WORKOUT_LABELS = { back_biceps: 'Back / Biceps', glutes: 'Glutes', legs: 'Legs', hot_pilates: 'Hot Pilates', reformer_pilates: 'Reformer Pilates', hot_yoga: 'Hot Yoga', cycle: 'Cycle', stair_master: 'Stair Master', core: 'Core', rest: 'Rest day' };
   const TABS = [
     ['Dashboard', '#page-1'], ['Tasks', '#page-8'], ['Workout Tracker', '#page-2'], ['Week in Depth', '#page-6'], ['Habit Tracker', '#page-3'],
-    ['Finances', '#page-7'], ['Quarterly', '#page-4'], ['Book Tracker', '#page-5'], ['Text Reminders', './sms-reminders.html']
+    ['Finances', '#page-7'], ['Monthly Overview', '#page-4'], ['Book Tracker', '#page-5'], ['Text Reminders', './sms-reminders.html']
   ];
 
   let records = [];

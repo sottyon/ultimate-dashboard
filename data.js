@@ -563,7 +563,7 @@
       { id: 6, title: 'Week in Depth' },
       { id: 3, title: 'Habit Tracker' },
       { id: 7, title: 'Finances' },
-      { id: 4, title: 'Quarterly' },
+      { id: 4, title: 'Monthly Overview' },
       { id: 5, title: 'Book Tracker' },
       { id: 'sms', title: 'Text Reminders', href: './sms-reminders.html' }
     ];

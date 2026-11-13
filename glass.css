@@ -32,7 +32,7 @@ body::before {
 }
 /* page shells let the canvas show through (their size and grid are unchanged) */
 .dashboard-layout, .dashboard-page-content, .app-shell, .shell, .app-wrapper,
-[id^="page-"], #page-5 > header.canva-header, .day-head {
+[id^="page-"], #page-5 header.canva-header, .day-head {
   background-color: transparent !important;
 }
 

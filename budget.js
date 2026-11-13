@@ -292,6 +292,10 @@ function boot(host){
     Object.keys(EMOJI).forEach(k => delete EMOJI[k]); Object.assign(EMOJI, BASE_EMOJI);
     S.categories.forEach(c => { if (c.emoji) EMOJI[c.name] = c.emoji; });
   }
+  // savings buckets: money landing here gets the cha-ching
+  const SAVINGS_KEYS = new Set(["general", "vet", "vacation", "brokerage"]);
+  const isSavings = key => SAVINGS_KEYS.has(key) || !!(ACCT_BY_KEY[key] && ACCT_BY_KEY[key].custom && ACCT_BY_KEY[key].kind === "bucket");
+  const chaChing = el => { try { if (window.celebrateDashboard) window.celebrateDashboard(el, "coins"); } catch(e){} };
   const acctLabel = key => { const a = ACCT_BY_KEY[key]; return a ? (a.label || a.name) : key; };
   const prevCheckDate = d => iso(addDays(D(d), -S.inputs.daysBetween));
   // is a repeating / one-paycheck item active on the paycheck that starts dateStr?
@@ -893,6 +897,7 @@ function boot(host){
         if (d == null){ toast("Enter an amount"); sh.querySelector("#aVal").focus(); return; }
         if (d === 0 && !ex){ toast("No change to save"); return; }
         const rec = { id: ex ? ex.id : uid(), key: k, delta: d, note: sh.querySelector("#aNote").value.trim(), date: ex ? ex.date : todayISO(), at: ex ? ex.at : new Date().toISOString() };
+        if (d > 0 && isSavings(k) && (!ex || d > ex.delta)) chaChing(sh.querySelector("#saveA"));
         if (ex) S.adjustments = S.adjustments.map(x => x.id === ex.id ? rec : x); else S.adjustments.push(rec);
         save(); closeSheet(); render(); toast(`${label(k)} ${d >= 0 ? "+" : ""}${money(d)}`);
       };
@@ -1249,7 +1254,7 @@ function boot(host){
   document.getElementById("view").addEventListener("click", async e => {
     const t = e.target;
     const edit = t.closest("[data-edit]"); if (edit){ txnSheet(edit.dataset.edit); return; }
-    const mv = t.closest("[data-move]"); if (mv){ toggleMove(mv.dataset.move, mv.dataset.label, mv.dataset.from, mv.dataset.to, +mv.dataset.amt); return; }
+    const mv = t.closest("[data-move]"); if (mv){ if (!moveDone(mv.dataset.move) && isSavings(mv.dataset.to) && +mv.dataset.amt > 0) chaChing(mv); toggleMove(mv.dataset.move, mv.dataset.label, mv.dataset.from, mv.dataset.to, +mv.dataset.amt); return; }
     const f = t.closest("[data-filter]"); if (f){ filterCat = f.dataset.filter; render(); return; }
     const bill = t.closest("[data-bill]"); if (bill){ billSheet("bill", +bill.dataset.bill); return; }
     const one = t.closest("[data-one]"); if (one){ billSheet("one", +one.dataset.one); return; }

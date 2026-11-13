@@ -1,5 +1,5 @@
 --- ../budget.orig.js	2026-11-12 21:52:11.430310357 -0500
-+++ budget.js	2026-11-12 21:56:43.910802580 -0500
++++ budget.js	2026-11-12 22:06:42.952881663 -0500
 @@ -5,13 +5,27 @@
     Data: one "budget_state" record in Supabase via window.dataSdk (data.js). */
  (() => {
@@ -56,7 +56,7 @@
      const txns = S.txns.filter(t => t.date === dateStr)
        .sort((a, b) => (a.createdAt || a.updatedAt || "").localeCompare(b.createdAt || b.updatedAt || ""))
        .map(t => ({ id: t.id, desc: t.desc || t.category, category: t.category, account: t.account, amount: +t.amount, note: t.note || "", spend: isSpend(t), emoji: EMOJI[t.category] || "•" }));
-@@ -261,6 +281,27 @@
+@@ -261,6 +281,31 @@
    const ACCT_BY_KEY = Object.fromEntries(ACCOUNTS.map(a => [a.key, a]));
    const NON_SPEND = new Set(["Fixed bill"]);
    const EMOJI = { "Groceries":"🛒","Gas":"⛽","Pets":"🐾","Entertainment":"🎬","Dining":"🍽️","Shopping":"🛍️","Other essentials":"🚇","Buffer":"🛟","Business Start Up":"💼","Subscriptions":"🔁","Personal Care":"🧴","Vacation":"✈️","Other":"•","Fixed bill":"🧾" };
@@ -71,6 +71,10 @@
 +    Object.keys(EMOJI).forEach(k => delete EMOJI[k]); Object.assign(EMOJI, BASE_EMOJI);
 +    S.categories.forEach(c => { if (c.emoji) EMOJI[c.name] = c.emoji; });
 +  }
++  // savings buckets: money landing here gets the cha-ching
++  const SAVINGS_KEYS = new Set(["general", "vet", "vacation", "brokerage"]);
++  const isSavings = key => SAVINGS_KEYS.has(key) || !!(ACCT_BY_KEY[key] && ACCT_BY_KEY[key].custom && ACCT_BY_KEY[key].kind === "bucket");
++  const chaChing = el => { try { if (window.celebrateDashboard) window.celebrateDashboard(el, "coins"); } catch(e){} };
 +  const acctLabel = key => { const a = ACCT_BY_KEY[key]; return a ? (a.label || a.name) : key; };
 +  const prevCheckDate = d => iso(addDays(D(d), -S.inputs.daysBetween));
 +  // is a repeating / one-paycheck item active on the paycheck that starts dateStr?
@@ -84,7 +88,7 @@
    const BUCKET_LABEL = { checking:"Checking", general:"General Savings", ccBucket:"CC Payments bucket", rent:"Rent bucket", vet:"Vet Visits", vacation:"Vacation", brokerage:"Brokerage" };
  
    /* ---------- date helpers ---------- */
-@@ -298,6 +339,7 @@
+@@ -298,6 +343,7 @@
    function schedule(count = 30){
      const I = S.inputs, out = [];
      let general = I.start.general, vac = I.start.vacation, vet = I.start.vet, rent = I.start.rent;
@@ -92,7 +96,7 @@
      for (let n = 1; n <= count; n++){
        const date = addDays(D(I.firstCheck), I.daysBetween * (n-1));
        const end = addDays(date, I.daysBetween - 1);
-@@ -317,10 +359,37 @@
+@@ -317,10 +363,37 @@
          if (d.getDate() === I.rentDay){ rentPaid += I.rent; }
        }
        rent -= rentPaid;
@@ -133,7 +137,7 @@
          spending, cat, general, vac, vet, rent, rentPaid });
      }
      return out;
-@@ -338,7 +407,10 @@
+@@ -338,7 +411,10 @@
      const start = iso(addDays(D(S.inputs.firstCheck), idx * 7)), end = iso(addDays(D(start), 6));
      const check = idx >= 0 ? sched[Math.floor(idx / 2)] : null;
      const budget = {}; let total = 0;
@@ -145,7 +149,7 @@
      return { idx, n: idx + 1, start, end, check, budget, total, prePlan: idx < 0 };
    }
    function weekFor(dateStr, sched){ const i = weekIdxOf(dateStr); return i < 0 ? null : weekByIdx(i, sched); }
-@@ -371,7 +443,9 @@
+@@ -371,7 +447,9 @@
    // imported sheet (no createdAt) or entered before the balances were set.
    function countsTowardBalance(t){ return !!t.createdAt && t.createdAt > S.snapshot.at; }
    function live(){
@@ -155,7 +159,7 @@
      S.txns.forEach(t => {
        if (!countsTowardBalance(t)) return;
        const a = ACCT_BY_NAME[t.account]; if (!a) return;
-@@ -510,7 +584,7 @@
+@@ -510,7 +588,7 @@
          const d = addDays(now, i);
          S.bills.forEach(b => { if (+b.day === d.getDate()) upcoming.push({ name: b.name, amount: +b.amount, date: iso(d), kind: "Bill" }); });
          S.oneTime.forEach(o => { if (o.date === iso(d)) upcoming.push({ name: o.name, amount: +o.amount, date: o.date, kind: "One-time" }); });
@@ -164,7 +168,7 @@
          if (d.getDate() === S.inputs.rentDay) upcoming.push({ name: "Rent (from Rent bucket)", amount: S.inputs.rent, date: iso(d), kind: "Rent" });
        }
        upcomingHTML = `<h2>Coming up (next 2 weeks)</h2>
-@@ -553,8 +627,10 @@
+@@ -553,8 +631,10 @@
      if (check.vacT > 0) items.push({ key: "vac-" + check.n, label: `Move ${money(check.vacT)} to Vacation`, from: "checking", to: "vacation", amt: check.vacT });
      if (check.vetT > 0) items.push({ key: "vet-" + check.n, label: `Move ${money(check.vetT)} to Vet Visits`, from: "checking", to: "vet", amt: check.vetT });
      if (check.extra > 0) items.push({ key: "extra-" + check.n, label: `Move ${money(check.extra)} extra to General Savings`, from: "checking", to: "general", amt: check.extra });
@@ -176,7 +180,7 @@
    }
    function recentList(n){
      const list = [...S.txns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, n);
-@@ -615,15 +691,39 @@
+@@ -615,15 +695,39 @@
          <div class="bar thick"><i style="width:${(pct * 100).toFixed(1)}%;background:var(--goodbar)"></i></div>
          <div class="row small muted" style="margin-top:8px"><span>${money(current)} of ${money(target, false)}</span><span>${current >= target ? "Reached 🎉" : hit ? "On pace for " + fmtDate(hit.date, { month: "short", day: "numeric", year: "numeric" }) : "Past 2028"}</span></div></div>`;
      };
@@ -216,7 +220,7 @@
  
      <h2>Where this paycheck goes</h2>
      <div class="card"><table class="mini">
-@@ -638,22 +738,33 @@
+@@ -638,22 +742,33 @@
        <tr><td>Less Vacation transfer</td><td>${money(-p.vacT)}</td></tr>
        <tr><td>Less Vet transfer</td><td>${money(-p.vetT)}</td></tr>
        <tr><td>Less extra to General</td><td>${money(-p.extra)}</td></tr>
@@ -255,7 +259,7 @@
      const acct = (k, v, note) => { const a = ACCT_BY_NAME[k] || ACCOUNTS.find(x => x.label === k); return `<div class="item row tap" data-adjust="${a ? a.key : ""}"><div><div class="name">${k}</div>${note ? `<div class="small faint">${note}</div>` : ""}</div><div class="row" style="gap:8px"><div class="num">${money(v)}</div><span class="faint">›</span></div></div>`; };
      const today = todayISO();
      const plannedFromChecking = S.oneTime.filter(o => /capital one|chase/i.test(o.name) && o.date >= today).reduce((a, o) => a + +o.amount, 0);
-@@ -669,11 +780,14 @@
+@@ -669,11 +784,14 @@
        ${acct("Vet Visits", L.vet)}
        ${acct("Vacation", L.vacation)}
        ${acct("Brokerage", L.brokerage)}
@@ -270,7 +274,7 @@
      <h2>Manual adjustments</h2>
      <div class="list">${S.adjustments.length ? [...S.adjustments].reverse().map(x => `<div class="item row tap" data-adjedit="${x.id}"><div style="min-width:0"><div class="name">${esc((ACCT_BY_KEY[x.key] || {}).label || (ACCT_BY_KEY[x.key] || {}).name || x.key)}</div><div class="small faint">${fmtDate(x.date, { month:"short", day:"numeric", year:"numeric" })}${x.note ? " · " + esc(x.note) : ""}</div></div><div class="num ${x.delta >= 0 ? "" : ""}">${x.delta >= 0 ? "+" : ""}${money(x.delta)}</div></div>`).join("") : `<div class="item muted small">None yet. Tap any account above to correct its balance.</div>`}</div>
      <button class="btn ghost" id="addAdj">+ Adjust a balance</button>
-@@ -685,9 +799,10 @@
+@@ -685,9 +803,10 @@
      <div class="row" style="gap:8px"><button class="btn ghost" id="addBill">+ Monthly bill</button><button class="btn ghost" id="addOne">+ One-time item</button></div>
  
      <h2>Budget per paycheck</h2>
@@ -283,7 +287,7 @@
  
      <h2>Backup</h2>
      <div class="row" style="gap:8px"><button class="btn ghost" id="exportBtn">Copy backup</button><button class="btn ghost" id="importBtn">Restore</button></div>
-@@ -756,7 +871,8 @@
+@@ -756,7 +875,8 @@
        <div class="field"><label id="aLbl"></label><input class="amount-in" id="aVal" inputmode="decimal" placeholder="0.00" value="${ex ? ex.delta : ""}"></div>
        <div class="small faint" id="aPreview" style="margin:-4px 4px 10px"></div>
        <div class="field"><label>Note (optional)</label><input id="aNote" placeholder="Why? e.g. interest, fee, cash withdrawal" value="${ex ? esc(ex.note) : ""}"></div>
@@ -293,7 +297,7 @@
      sh => {
        const cur = () => ex ? L[k] - ex.delta : L[k];
        const parse = () => { const v = parseFloat(String(sh.querySelector("#aVal").value).replace(/[$,\s]/g, "")); return isNaN(v) ? null : v; };
-@@ -771,6 +887,7 @@
+@@ -771,11 +891,13 @@
        sh.querySelector("#aVal").oninput = upd;
        sh.querySelectorAll("#aMode button").forEach(b => b.onclick = () => { mode = b.dataset.m; sh.querySelectorAll("#aMode button").forEach(x => x.classList.toggle("on", x === b)); upd(); });
        sh.querySelector("#cancel").onclick = closeSheet;
@@ -301,7 +305,13 @@
        sh.querySelector("#saveA").onclick = () => {
          const d = delta();
          if (d == null){ toast("Enter an amount"); sh.querySelector("#aVal").focus(); return; }
-@@ -811,6 +928,284 @@
+         if (d === 0 && !ex){ toast("No change to save"); return; }
+         const rec = { id: ex ? ex.id : uid(), key: k, delta: d, note: sh.querySelector("#aNote").value.trim(), date: ex ? ex.date : todayISO(), at: ex ? ex.at : new Date().toISOString() };
++        if (d > 0 && isSavings(k) && (!ex || d > ex.delta)) chaChing(sh.querySelector("#saveA"));
+         if (ex) S.adjustments = S.adjustments.map(x => x.id === ex.id ? rec : x); else S.adjustments.push(rec);
+         save(); closeSheet(); render(); toast(`${label(k)} ${d >= 0 ? "+" : ""}${money(d)}`);
+       };
+@@ -811,6 +933,284 @@
      });
    }
  
@@ -586,7 +596,7 @@
    function importSheet(){
      openSheet(`<div class="row" style="margin-bottom:10px"><button class="btn sm ghost" id="cancel">Cancel</button><b>Restore backup</b><button class="btn sm" id="doImp">Restore</button></div>
        <p class="small muted" style="margin:0 4px 10px">Paste a backup you copied earlier.</p><textarea class="json" id="impTxt"></textarea>`,
-@@ -828,6 +1223,7 @@
+@@ -828,6 +1228,7 @@
      try { window.dispatchEvent(new CustomEvent("ultimate-budget-change")); } catch(e){}
      const v = document.getElementById("view");
      if (!S){ v.innerHTML = viewSetup(); document.getElementById("tabs").style.display = "none"; fabState(); return; }
@@ -594,7 +604,16 @@
      document.getElementById("tabs").style.display = "";
      v.innerHTML = tab === "today" ? viewToday() : tab === "activity" ? viewActivity() : tab === "month" ? viewMonth() : tab === "goals" ? viewGoals() : viewAccounts();
      document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
-@@ -864,6 +1260,16 @@
+@@ -853,7 +1254,7 @@
+   document.getElementById("view").addEventListener("click", async e => {
+     const t = e.target;
+     const edit = t.closest("[data-edit]"); if (edit){ txnSheet(edit.dataset.edit); return; }
+-    const mv = t.closest("[data-move]"); if (mv){ toggleMove(mv.dataset.move, mv.dataset.label, mv.dataset.from, mv.dataset.to, +mv.dataset.amt); return; }
++    const mv = t.closest("[data-move]"); if (mv){ if (!moveDone(mv.dataset.move) && isSavings(mv.dataset.to) && +mv.dataset.amt > 0) chaChing(mv); toggleMove(mv.dataset.move, mv.dataset.label, mv.dataset.from, mv.dataset.to, +mv.dataset.amt); return; }
+     const f = t.closest("[data-filter]"); if (f){ filterCat = f.dataset.filter; render(); return; }
+     const bill = t.closest("[data-bill]"); if (bill){ billSheet("bill", +bill.dataset.bill); return; }
+     const one = t.closest("[data-one]"); if (one){ billSheet("one", +one.dataset.one); return; }
+@@ -864,6 +1265,16 @@
      const adj = t.closest("[data-adjust]"); if (adj){ adjustSheet(adj.dataset.adjust || "checking"); return; }
      const adjE = t.closest("[data-adjedit]"); if (adjE){ adjustSheet(null, adjE.dataset.adjedit); return; }
      if (t.id === "addAdj") return adjustSheet("checking");

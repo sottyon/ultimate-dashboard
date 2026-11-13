@@ -12,9 +12,10 @@ It was built from read-only copies of `sottyon/dash` (commit `33658ac`) and `sot
 | **Tasks** | Task checklist with Work/Personal filters, **New task** (optional due day and time), the progress chart and notes |
 | **Workout Tracker** (replaces Week At A Glance) | Tap what you did each day: Back/Biceps, Glutes, Legs, Hot Pilates, Reformer Pilates, Hot Yoga, Cycle, Stair Master, Core or Rest day. Choosing **Rest day** clears that day's workouts, and choosing a workout clears Rest day. Shows weekly totals and lets you move between weeks |
 | Week in Depth | For each day: **tasks due** (with time), **Google Calendar events**, **habits** ticked in Habit Tracker or logged on the card, and a **"Monday Spending Overview"** drop-down with that day's total and transactions from Finances |
-| Habit Tracker, Book Tracker | Same as Daymark |
+| Habit Tracker | Same as Daymark, plus a clickable emoji picker: tap **Icon** when adding a habit, or tap any habit's icon to change it (you can also type any emoji) |
+| Book Tracker | Search, your shelves and Goodreads sync (the Kindle link and card were removed) |
 | **Finances** | The whole Paycheck Budget app, with its **Today · Activity · Month · Plan · Accounts** tabs at the top (shown only on this page), the **+** button, transfers, goals, balances and backup |
-| Quarterly (was Monthly Spending) | Quarterly goals, wins and the parking lot. "Spending vs. budget" moved to **Finances → Month**, and "Money at a glance" moved to **Finances → Accounts** |
+| Monthly Overview (was Quarterly, and before that Monthly Spending) | Monthly goals, wins and the parking lot. "Spending vs. budget" moved to **Finances → Month**, and "Money at a glance" moved to **Finances → Accounts** |
 | Text Reminders | SMS opt-in page (now branded Ultimate Dashboard) |
 
 Workouts are saved as one `workout_log` record per day in `dashboard_records`, for example `{ "date": "2026-11-12", "workouts": ["legs", "core"] }`. Week At A Glance's old weekly goals and focus records stay in the database, but nothing shows them any more.
@@ -118,6 +119,11 @@ If the calendar ever says access expired (for example after you remove the app a
 ### 10. Goodreads shelf (optional)
 The Book Tracker can sync your Goodreads shelves (Currently Reading, Read, Want to Read, Did Not Finish) from Goodreads custom widgets. No Supabase setup needed; follow `GOODREADS.md`.
 
+## Sounds and celebrations
+- **Cha-ching:** plays with a shower of coins whenever money goes into a savings bucket. That means ticking a transfer into General Savings, Vet Visits, Vacation, Brokerage or a bucket you added, or adjusting one of those balances upward in Finances. It also plays when you raise a savings entry on Monthly Overview.
+- **Tasks and habits:** finishing a task or ticking a habit sets off a big confetti burst with rings and a "ta-da" sound.
+- On iPhone, sounds play only when the ringer switch is on (not silent mode) and after you've tapped the page once since opening it.
+
 ## Goals, transfers, accounts and categories you add yourself
 
 All of these live in **Finances**, save to your account like everything else, and change your budget from the **current paycheck on**. Past weeks keep the numbers they had.
@@ -179,4 +185,4 @@ The end of `glass.css` also holds the Liquid Glass mockup layer (from `ultimate-
 To switch back to the flat look, delete the `<link rel="stylesheet" href="./glass.css">` line in `index.html`. Also delete the glass-finances link in `tools/build-budget.py`, then rebuild `budget.js`.
 
 ## Old money views
-Daymark's weekly spending (Week in Depth), monthly budget chart and account balances (Monthly Spending) are hidden rather than deleted, because the page scripts still look for them. Finances is now the only place to log spending and see budgets and balances. Daymark's Credit card, Savings bucket and Checking account entry types are hidden from the Quarterly "Add an entry" form.
+Daymark's weekly spending (Week in Depth), monthly budget chart and account balances (Monthly Spending) are hidden rather than deleted, because the page scripts still look for them. Finances is now the only place to log spending and see budgets and balances. Daymark's Credit card, Savings bucket and Checking account entry types are hidden from the Monthly Overview "Add an entry" form.
