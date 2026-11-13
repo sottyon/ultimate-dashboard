@@ -213,6 +213,24 @@ The storage, setup screen and theme changes live in `tools/budget-storage.js` an
 ## Preview locally
 Run `python3 -m http.server` in this folder, then open http://localhost:8000.
 
+## Screen sizes (iPhone, iPad, Mac)
+`responsive.css` is loaded last in `index.html` and only changes layout: columns, spacing and wrapping. It doesn't touch your data or how anything saves.
+
+| Screen | Width | What changes |
+|---|---|---|
+| iPhone | up to 600px | Week in Depth shows one day per row (no sideways scrolling). Tasks card stats sit under the ring. Workout week buttons wrap |
+| iPad (upright) and small windows | 601–1100px | Week in Depth shows two days per row. A Dashboard card that would sit alone in its row stretches full width |
+| iPad (sideways) and most Mac windows | 1101–1499px | Week in Depth shows four days per row |
+| Large Mac screens | 1500px and up | Week in Depth shows the whole week side by side |
+
+It also:
+- stops the page from sliding sideways on phones (hidden screen-reader labels were leaking out of the week view)
+- keeps the search bar, bell and + buttons on screen on small iPhones
+- stops Safari zooming in when you tap a field
+- keeps content clear of the notch when an iPhone is turned sideways
+
+To undo all of this, delete the `<link rel="stylesheet" href="./responsive.css">` line near the end of `index.html`.
+
 ## Liquid Glass look
 `glass.css` (whole site) and `glass-finances.css` (inside the Finances page) add the Liquid Glass design: frosted panes, glass pill buttons and fields, pastel background blobs, and line icons in the sidebar. They only change how things look. They don't move or resize anything, and they don't touch your data. A test confirmed every element keeps the same position and size with or without them.
 
