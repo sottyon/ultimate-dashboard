@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./theme.css">
   <link rel="stylesheet" href="./glass.css">
   <link rel="stylesheet" href="./home.css">
+  <link rel="stylesheet" href="./weight.css">
   <link rel="icon" href="./favicon.ico?v=2" sizes="any">
 <link rel="icon" href="./favicon-32.png?v=2" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=2" sizes="180x180">
@@ -365,7 +366,7 @@
       <section class="home-card pink home-fin" aria-label="Finances">
        <a class="home-card-head" href="#page-7"><span class="icon-bubble sm pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="17" height="13" rx="2.5"/><path d="M15 12.5h5.5"/><circle cx="16" cy="12.5" r=".6"/></svg></span><span class="home-titles"><h2 class="home-card-title">Finances</h2><span id="home-fin-range" class="home-caption">This week</span></span></a>
        <div class="home-fin-body">
-        <div class="home-ring" id="home-fin-ring" role="img" aria-label="Share of this week’s budget spent"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div>
+        <div class="home-ring" id="home-fin-ring" role="img" aria-label="Share of this week’s budget spent"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><div class="ring-center"><span class="ring-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="17" height="13" rx="2.5"/><path d="M15 12.5h5.5"/><circle cx="16" cy="12.5" r=".6"/></svg></span><b class="ring-pct">0%</b></div></div>
         <div class="home-fin-stats">
          <b id="home-fin-left" class="home-big">—</b><span class="home-caption">left to spend</span>
          <span id="home-fin-spent" class="home-label">&nbsp;</span><span id="home-fin-next" class="home-caption"></span>
@@ -385,7 +386,7 @@
       </section>
       <section class="home-card aqua home-habits" aria-label="Habits">
        <a class="home-card-head" href="#page-3"><span class="icon-bubble sm white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4c.6 4 2 5.4 7 6-5 .6-6.4 2-7 8-.6-6-2-7.4-7-8 5-.6 6.4-2 7-6z"/></svg></span><span class="home-titles"><h2 class="home-card-title">Habits</h2><span id="home-habits-caption" class="home-caption">This week</span></span></a>
-       <div class="home-habit-top"><div class="home-ring" id="home-habit-ring" role="img" aria-label="Habit check-ins against your goals this week"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div></div>
+       <div class="home-habit-top"><div class="home-ring" id="home-habit-ring" role="img" aria-label="Habit check-ins against your goals this week"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><div class="ring-center"><span class="ring-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4c.6 4 2 5.4 7 6-5 .6-6.4 2-7 8-.6-6-2-7.4-7-8 5-.6 6.4-2 7-6z"/></svg></span><b class="ring-pct">0%</b></div></div></div>
        <div id="home-habit-list" class="home-habit-list"></div>
        <a href="#page-3" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
          <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Habit Tracker</span>
@@ -398,7 +399,7 @@
      <div class="home-row home-row-2">
       <section class="home-card white home-tasks" aria-label="Tasks">
        <a class="home-card-head" href="#page-8"><span class="icon-bubble sm pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span><span class="home-titles"><h2 class="home-card-title">Tasks</h2><span id="home-tasks-caption" class="home-caption">Loading…</span></span></a>
-       <div class="home-task-top"><div class="home-ring" id="home-task-ring" role="img" aria-label="Tasks completed"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div><section aria-label="Task overview" class="stats">
+       <div class="home-task-top"><div class="home-ring" id="home-task-ring" role="img" aria-label="Tasks completed"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><div class="ring-center"><span class="ring-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span><b class="ring-pct">0%</b></div></div><section aria-label="Task overview" class="stats">
       <article data-template-id="total-card" class="canva-card stat"><span data-template-id="total-label" class="canva-text stat-label">All tasks</span><strong id="total-count" class="stat-number">0</strong>
       </article>
       <article data-template-id="completed-card" class="canva-card stat"><span data-template-id="completed-label" class="canva-text stat-label">Completed</span><strong id="completed-count" class="stat-number">0</strong>
@@ -439,7 +440,7 @@
       <div class="home-row home-row-3">
        <section class="home-card white home-workouts" aria-label="Workouts">
         <a class="home-card-head" href="#page-2"><span class="icon-bubble sm pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 8v8M4 10v4M17.5 8v8M20 10v4M6.5 12h11"/></svg></span><span class="home-titles"><h2 class="home-card-title">Workouts</h2><span id="home-wo-caption" class="home-caption">This week</span></span></a>
-        <div class="home-wo-body"><div class="home-ring" id="home-wo-ring" role="img" aria-label="Active days this week"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div><div id="home-wo-mix" class="home-wo-mix"></div></div>
+        <div class="home-wo-body"><div class="home-ring" id="home-wo-ring" role="img" aria-label="Active days this week"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><div class="ring-center"><span class="ring-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 8v8M4 10v4M17.5 8v8M20 10v4M6.5 12h11"/></svg></span><b class="ring-pct">0%</b></div></div><div id="home-wo-mix" class="home-wo-mix"></div></div>
         <a href="#page-2" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
          <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Workouts</span>
          <strong id="overview-workouts" class="mt-2 block text-lg">Loading workouts…</strong>
@@ -449,11 +450,20 @@
        </section>
        <section class="home-card white home-books" aria-label="Book Tracker">
         <a class="home-card-head" href="#page-5"><span class="icon-bubble sm aqua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5.5A2 2 0 0 1 7 3.5h11v17H7a2 2 0 0 1-2-2z"/><path d="M5 18.5a2 2 0 0 1 2-2h11"/></svg></span><span class="home-titles"><h2 class="home-card-title">Book Tracker</h2><span id="home-books-caption" class="home-caption">Your shelf</span></span></a>
-        <div class="home-books-body"><div class="home-ring" id="home-books-ring" role="img" aria-label="Books finished"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><b class="ring-pct">0%</b></div><ul id="home-books-list" class="home-books-list"></ul></div>
+        <div class="home-books-body"><div class="home-ring" id="home-books-ring" role="img" aria-label="Books finished"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="56"/><circle class="ring-fill" cx="66" cy="66" r="56" pathLength="100" stroke-dasharray="0 100"/></svg><div class="ring-center"><span class="ring-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5.5A2 2 0 0 1 7 3.5h11v17H7a2 2 0 0 1-2-2z"/><path d="M5 18.5a2 2 0 0 1 2-2h11"/></svg></span><b class="ring-pct">0%</b></div></div><ul id="home-books-list" class="home-books-list"></ul></div>
         <a href="#page-5" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
          <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Book Tracker</span>
          <strong id="overview-books" class="mt-2 block text-lg">Loading bookshelf…</strong>
          <span id="overview-books-reading" class="mt-1 block text-sm text-[#807672]"></span>
+        </a>
+       </section>
+       <section class="home-card white home-weight" aria-label="Weight">
+        <a class="home-card-head" href="#page-2" data-wo-tab="weight"><span class="icon-bubble sm aqua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8.6 10a4.6 4.6 0 0 1 6.8 0"/><path d="m12 11.4 1.4-1.9"/></svg></span><span class="home-titles"><h2 class="home-card-title">Weight</h2><span id="home-weight-caption" class="home-caption">Loading…</span></span></a>
+        <div class="home-wt-body" id="home-weight-body"></div>
+        <a href="#page-2" data-wo-tab="weight" class="home-foot-link canva-card rounded-2xl border border-[#dbdfeb] bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+         <span class="text-xs font-bold uppercase tracking-wider text-[#807672]">Weight tracker</span>
+         <strong id="overview-weight" class="mt-2 block text-lg">Loading weight…</strong>
+         <span class="mt-1 block text-sm text-[#807672]">Tap to log today's weight</span>
         </a>
        </section>
       </div>
@@ -541,10 +551,16 @@
   <div id="page-2" class="workout-page">
    <header class="budget-page-intro">
     <div class="eyebrow">Workout tracker</div>
-    <h1>Move a little, every day.</h1>
-    <p>Tap what you did each day. Rest days count too.</p>
+    <h1 id="wo-heading">Move a little, every day.</h1>
+    <p id="wo-sub">Tap what you did each day. Rest days count too.</p>
    </header>
-   <div id="workout-app" class="workout-app" aria-live="polite"></div>
+   <div class="wo-tabs" role="tablist" aria-label="Workout tracker sections">
+    <button type="button" role="tab" class="on" data-wo-tab="workouts" aria-selected="true" aria-controls="workout-app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 8v8M4 10v4M17.5 8v8M20 10v4M6.5 12h11"/></svg>Workouts</button>
+    <button type="button" role="tab" data-wo-tab="weight" aria-selected="false" aria-controls="weight-app" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8.6 10a4.6 4.6 0 0 1 6.8 0"/><path d="m12 11.4 1.4-1.9"/></svg>Weight</button>
+   </div>
+   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="wt-ring-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fdbfce"/><stop offset="1" stop-color="rgba(68,54,47,.45)"/></linearGradient></defs></svg>
+   <div id="workout-app" class="workout-app" role="tabpanel" aria-live="polite"></div>
+   <div id="weight-app" class="weight-app" role="tabpanel" aria-label="Weight" hidden></div>
   </div>
   <section id="auth-gate" class="auth-gate" role="dialog" aria-modal="true" aria-labelledby="auth-heading">
    <div class="auth-card">
@@ -1059,12 +1075,17 @@
       list.replaceChildren();
       const events = calendarEvents.filter(event => window.googleCalendar.occursOnDate(event, card.dataset.date));
       for (const event of events) {
-        const item = document.createElement('p');
-        item.className = 'canva-text muted leading-relaxed mb-2';
-        const time = event.start?.dateTime
-          ? `${new Date(event.start.dateTime).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} · `
-          : 'ALL DAY · ';
-        item.textContent = `${time}${event.summary || '(Untitled event)'}`;
+        const item = document.createElement('div');
+        item.className = 'wid-event';
+        const time = document.createElement('span');
+        time.className = 'wid-event-time';
+        time.textContent = event.start?.dateTime
+          ? new Date(event.start.dateTime).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
+          : 'All day';
+        const title = document.createElement('span');
+        title.className = 'wid-event-title';
+        title.textContent = event.summary || '(Untitled event)';
+        item.append(time, title);
         list.appendChild(item);
       }
       empty.classList.toggle('hidden', events.length > 0);
@@ -2933,6 +2954,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   <script src="./budget.js"></script>
   <script src="./week-in-depth.js"></script>
   <script src="./workouts.js"></script>
+  <script src="./weight.js"></script>
   <script src="./home.js"></script>
   <script>
   (() => {

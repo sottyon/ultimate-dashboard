@@ -1,0 +1,123 @@
+/* Ultimate Dashboard · Weight tracker, ring icons, calendar event cards
+   Liquid Glass recipes (see STYLE-GUIDE.md): Pane for cards, Raised for pills, fields and rows. */
+:root {
+  --wt-ink: #44362f; --wt-muted: #7a706c; --wt-pink: #fdbfce; --wt-mint: #d0efef; --wt-mist: #dbdfeb;
+  --wt-pane: linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.2) 100%);
+  --wt-pane-shadow: 0 16px 40px -8px rgba(68,54,47,.08), inset 0 1px 1px rgba(255,255,255,.9), inset 0 0 0 1.5px rgba(255,255,255,.95);
+  --wt-raised: linear-gradient(180deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,.08) 55%, rgba(255,255,255,.25) 100%);
+  --wt-raised-shadow: 0 10px 28px -4px rgba(68,54,47,.1), inset 0 -3px 8px rgba(68,54,47,.06), inset 0 2px 2px rgba(255,255,255,.95), inset 0 0 0 1.5px rgba(255,255,255,.95);
+}
+
+/* ---------- icon in the middle of every progress ring ---------- */
+.home-ring .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; pointer-events: none; }
+.home-ring .ring-center .ring-pct { position: static; display: block; inset: auto; line-height: 1.15; }
+.home-ring .ring-icon { display: grid; place-items: center; width: 26px; height: 26px; color: var(--wt-ink); }
+.home-ring .ring-icon svg { width: 100%; height: 100%; transform: none; }
+.home-habits .home-ring .ring-icon, .home-tasks .home-ring .ring-icon, .home-workouts .home-ring .ring-icon,
+.home-books .home-ring .ring-icon, .home-weight .home-ring .ring-icon, .wt-ring.sm .ring-icon { width: 18px; height: 18px; }
+.home-habits .home-ring .ring-pct, .home-tasks .home-ring .ring-pct, .home-workouts .home-ring .ring-pct,
+.home-books .home-ring .ring-pct, .wt-ring.sm .ring-pct { font-size: 14px; }
+
+/* ---------- Dashboard: three cards across ---------- */
+.home-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1180px) { .home-row-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .home-row-3 { grid-template-columns: minmax(0, 1fr); } }
+.home-wt-body { display: flex; align-items: center; gap: 18px; }
+.wt-ring.sm { width: 88px; height: 88px; }
+.home-wt-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.home-wt-now { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.home-wt-now small { font-size: 14px; font-weight: 500; color: var(--wt-muted); }
+.home-wt-spark { width: 100%; height: 32px; margin-top: 4px; overflow: visible; }
+.home-wt-spark path { fill: none; stroke: var(--wt-ink); stroke-opacity: .55; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* ---------- Workout Tracker: Workouts / Weight tabs ---------- */
+.wo-tabs { display: inline-flex; gap: 6px; padding: 6px; margin: 0 0 20px; border-radius: 999px;
+  background: var(--wt-pane), rgba(255,255,255,.55); box-shadow: var(--wt-pane-shadow); }
+.wo-tabs button { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 10px 20px;
+  font: inherit; font-size: 15px; font-weight: 500; color: var(--wt-ink); background: transparent; cursor: pointer; }
+.wo-tabs button svg { width: 18px; height: 18px; }
+.wo-tabs button.on { background: var(--wt-raised), var(--wt-pink); box-shadow: var(--wt-raised-shadow); font-weight: 600; }
+.wo-tabs button:focus-visible { outline: 2px solid var(--wt-ink); outline-offset: 2px; }
+
+/* ---------- Weight tab ---------- */
+.weight-app { display: flex; flex-direction: column; gap: 22px; }
+.wt-pane { background: var(--wt-pane), #fff; border-radius: 28px; box-shadow: var(--wt-pane-shadow); padding: 26px 28px; }
+.wt-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 22px; }
+.wt-title { margin: 0 0 14px; font-size: 20px; font-weight: 672; letter-spacing: -.01em; line-height: 1.2; color: var(--wt-ink); }
+.wt-muted, .wt-hint { color: var(--wt-muted); font-size: 14px; line-height: 1.5; margin: 0; }
+.wt-hint { font-size: 12px; margin-top: 12px; }
+.wt-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.wt-field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 150px; font-size: 13px; font-weight: 500; color: var(--wt-ink); }
+.wt-field input, .wt-field select { font: inherit; font-size: 16px; color: var(--wt-ink); border: 0; border-radius: 999px; padding: 12px 16px; min-height: 46px;
+  background: var(--wt-raised), #fff; box-shadow: var(--wt-raised-shadow); outline: none; width: 100%; }
+.wt-field input::placeholder { color: var(--wt-muted); }
+.wt-field input:focus-visible, .wt-field select:focus-visible { outline: 2px solid var(--wt-pink); outline-offset: 1px; }
+.wt-btn { font: inherit; font-size: 15px; font-weight: 600; color: var(--wt-ink); border: 0; border-radius: 999px; padding: 12px 22px; min-height: 46px; cursor: pointer;
+  background: var(--wt-raised), #fff; box-shadow: var(--wt-raised-shadow); }
+.wt-btn.ink { background: var(--wt-ink); color: #fff; font-weight: 700; box-shadow: 0 10px 28px -4px rgba(68,54,47,.25), inset 0 2px 2px rgba(255,255,255,.25); }
+.wt-btn:focus-visible { outline: 2px solid var(--wt-pink); outline-offset: 2px; }
+.wt-goal { background: var(--wt-pane), var(--wt-mint); }
+.wt-goal .wt-muted { color: var(--wt-ink); }
+.wt-goal-body { display: flex; align-items: center; gap: 24px; }
+.wt-goal-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.wt-goal-copy .wt-title { margin: 0; }
+.wt-togo { margin: 2px 0 6px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+.wt-goal-form { margin-top: 20px; }
+.wt-ring.lg { width: 132px; height: 132px; }
+.wt-ring .ring-track { fill: rgba(255,255,255,.75); stroke: rgba(255,255,255,.9); stroke-width: 14; }
+.wt-ring .ring-fill { fill: none; stroke: url(#wt-ring-grad); stroke-width: 14; stroke-linecap: round; transition: stroke-dasharray .5s ease; }
+.home-weight .wt-ring .ring-fill { stroke: url(#home-ring-grad); }
+.home-weight .wt-ring .ring-track { fill: #f9f8fa; stroke: #eff1f6; }
+.wt-ring .ring-pct { font-size: 20px; font-weight: 672; font-variant-numeric: tabular-nums; }
+.wt-stats { margin: 0; }
+
+/* chart */
+.wt-chart-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.wt-chart-head .wt-title { margin: 0; }
+.wt-ranges { display: flex; gap: 6px; flex-wrap: wrap; }
+.wt-range { font: inherit; font-size: 13px; font-weight: 600; color: var(--wt-ink); border: 0; border-radius: 999px; padding: 7px 14px; cursor: pointer;
+  background: var(--wt-raised), #fff; box-shadow: var(--wt-raised-shadow); }
+.wt-range.on { background: var(--wt-raised), var(--wt-pink); }
+.wt-range:focus-visible { outline: 2px solid var(--wt-ink); outline-offset: 2px; }
+.wt-tip { min-height: 21px; margin: 12px 2px 6px; font-size: 14px; color: var(--wt-muted); }
+.wt-tip b { color: var(--wt-ink); }
+.wt-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.wt-grid { stroke: var(--wt-mist); stroke-width: 1; }
+.wt-axis { font-size: 11px; fill: var(--wt-muted); font-family: inherit; }
+.wt-area { fill: var(--wt-pink); fill-opacity: .35; }
+.wt-line { fill: none; stroke: var(--wt-ink); stroke-opacity: .7; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.wt-dot { fill: #fff; stroke: var(--wt-ink); stroke-width: 2; cursor: pointer; }
+.wt-dot.on { fill: var(--wt-pink); r: 7; }
+.wt-goal-line { stroke: var(--wt-ink); stroke-opacity: .45; stroke-width: 1.5; stroke-dasharray: 6 6; }
+.wt-goal-text { font-size: 12px; font-weight: 600; fill: var(--wt-ink); font-family: inherit; }
+.wt-chart-empty { display: grid; place-items: center; min-height: 160px; border-radius: 16px; background: var(--wt-mist); color: var(--wt-ink); font-size: 14px; text-align: center; padding: 20px; }
+
+/* history */
+.wt-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }
+.wt-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; border-radius: 16px; background: var(--wt-raised), #fff; box-shadow: var(--wt-raised-shadow); }
+.wt-row-date { flex: 1; font-size: 14px; }
+.wt-row-val { display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+.wt-row-val small { font-size: 12px; color: var(--wt-muted); }
+.wt-del { border: 0; background: transparent; color: var(--wt-ink); font: inherit; font-size: 13px; font-weight: 600; min-width: 32px; height: 32px; border-radius: 999px; cursor: pointer; }
+.wt-del:hover, .wt-del:focus-visible { background: var(--wt-pink); outline: none; }
+
+@media (max-width: 900px) { .wt-top { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) {
+  .wt-pane { padding: 22px 20px; }
+  .wt-goal-body { flex-direction: column; align-items: flex-start; }
+  .wo-tabs { display: flex; } .wo-tabs button { flex: 1; justify-content: center; }
+  .weight-app .wt-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .weight-app .wt-stats .wo-stat { grid-column: auto; }
+}
+
+/* ---------- Week in Depth: light blue glass card behind each calendar event ---------- */
+.calendar-event-list { display: flex; flex-direction: column; gap: 8px; }
+.wid-event { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 16px; color: var(--wt-ink);
+  background: var(--wt-raised), var(--wt-mint); box-shadow: var(--wt-raised-shadow); }
+.wid-event-time { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--wt-ink); }
+.wid-event-title { font-size: 14px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .wt-pane, .wo-tabs { background: #fff; }
+  .wt-goal { background: var(--wt-mint); }
+}
