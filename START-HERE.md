@@ -115,6 +115,9 @@ If the calendar ever says access expired (for example after you remove the app a
    - Terms: `https://sottyon.github.io/ultimate-dashboard/terms.html`
    - Privacy: `https://sottyon.github.io/ultimate-dashboard/privacy.html`
 
+### 10. Goodreads shelf (optional)
+The Book Tracker can sync your Goodreads shelves (Currently Reading, Read, Want to Read, Did Not Finish) from Goodreads custom widgets. No Supabase setup needed; follow `GOODREADS.md`.
+
 ## Updating the Budget page later
 `budget.js` is generated from the Paycheck Budget app. If you change the original app and want those changes here, clone `sottyon/Finance` next to this repo and run:
 ```

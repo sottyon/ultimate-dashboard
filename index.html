@@ -2127,6 +2127,21 @@
      </form>
      <div id="results" class="grid md:grid-cols-2 gap-3 mt-5" aria-live="polite"></div>
     </section>
+    <section aria-labelledby="goodreads-heading" class="mb-12">
+     <div class="flex items-center gap-3 mb-5"><span aria-hidden="true" class="text-[#fdbfce]">✳</span>
+      <h2 id="goodreads-heading" class="canva-text" style="color:#44362f; font-family:'Cause',cursive; font-weight:672; font-size:24px;">Goodreads shelves</h2>
+     </div>
+     <form id="goodreads-form" class="canva-panel rounded-2xl p-5 sm:p-7 shadow-[0_10px_35px_#24332e0b]" style="background:#d0efef;">
+      <label for="goodreads-widget-code" class="canva-text block mb-1 font-semibold" style="color:#44362f; font-size:14px;">Goodreads widget HTML</label>
+      <p class="text-sm mb-3" style="color:#44362f;">Paste the widget code for your <b>Currently Reading</b>, <b>Read</b>, <b>Want to Read</b> and <b>Did Not Finish</b> shelves, one at a time or all together. Each shelf is saved to your account, then kept up to date automatically.</p>
+      <textarea id="goodreads-widget-code" rows="4" spellcheck="false" autocomplete="off" class="canva-input w-full rounded-xl border border-[#dbdfeb] bg-[#ffffff] px-4 py-3 text-[#44362f]" placeholder="<!-- Show static HTML/CSS as a placeholder … --> … <script src=&quot;https://www.goodreads.com/review/custom_widget/…&quot;></script>" style="font-size:14px; font-family:ui-monospace,monospace;"></textarea>
+      <div class="flex flex-wrap items-center gap-3 mt-3">
+       <button id="goodreads-sync" type="submit" class="canva-button rounded-xl px-7 py-3.5 font-bold hover:brightness-110 transition" style="background:#44362f; color:#ffffff; font-weight:700; font-size:16px;">Save &amp; sync</button>
+       <span id="goodreads-connected" class="text-sm" style="color:#44362f;"></span>
+      </div>
+      <p id="goodreads-feedback" role="status" aria-live="polite" class="mt-3 text-sm text-[#44362f] min-h-5"></p>
+     </form>
+    </section>
     <section aria-labelledby="shelf-heading" class="border-t border-[#dbdfeb] pt-9">
      <div class="flex flex-wrap justify-between items-end gap-3 mb-6">
       <div>
@@ -2143,7 +2158,7 @@
     </section>
    </main>
    <footer class="max-w-6xl mx-auto px-5 sm:px-8 py-8 border-t border-[#dbdfeb]">
-    <p data-template-id="footer-copy" class="canva-text" style="color: rgb(68, 54, 47); font-weight: 400; font-style: normal; font-size: 13px;">Book information from Open Library and Apple Books. Made for the love of reading.</p>
+    <p data-template-id="footer-copy" class="canva-text" style="color: rgb(68, 54, 47); font-weight: 400; font-style: normal; font-size: 13px;">Book information from Open Library, Apple Books and Goodreads. Made for the love of reading.</p>
    </footer>
   </div>
   <script>
@@ -2156,8 +2171,10 @@
   let books = [];
   let ready = false;
   let results = [];
+  let goodreadsSettings = null;
+  let goodreadsSyncing = false;
 
-  const statuses = ['Want to read', 'Reading', 'Finished'];
+  const statuses = ['Want to read', 'Reading', 'Finished', 'Did not finish'];
 
   function isBookRecord(record) {
     return typeof record.book_title === 'string' && record.book_title.trim().length > 0;
@@ -2169,6 +2186,7 @@
       if (cover.protocol !== 'https:') return '';
       if (cover.hostname === 'covers.openlibrary.org' && /^\/b\/id\/\d+-[SML]\.jpg$/.test(cover.pathname)) return cover.href;
       if (cover.hostname.endsWith('.mzstatic.com')) return cover.href;
+      if (['i.gr-assets.com', 's.gr-assets.com', 'images.gr-assets.com', 'images-na.ssl-images-amazon.com', 'm.media-amazon.com'].includes(cover.hostname)) return cover.href;
     } catch (_) {}
     return '';
   }
@@ -2293,6 +2311,9 @@
   }
 
   function updateShelf(data) {
+    goodreadsSettings = data.filter(record => record.type === 'goodreads_settings')
+      .sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')))[0] || null;
+    showGoodreadsSettings();
     books = data.filter(isBookRecord).sort((a, b) => (b.added_at || '').localeCompare(a.added_at || ''));
     document.getElementById('books-empty-state').hidden = books.length > 0;
     document.getElementById('book-count').textContent = `${books.length} ${books.length === 1 ? 'book' : 'books'} on your shelf`;
@@ -2380,6 +2401,252 @@
     renderResults();
   }
 
+  // ── Goodreads shelf sync (custom widgets) ────────────────────────────
+  // Goodreads turned off RSS, so this reads each shelf's "custom widget" instead.
+  // You paste the widget HTML once; only its script address is kept (in one goodreads_settings record).
+  // Each sync loads that script inside a hidden sandboxed iframe (no access to this page, your
+  // sign-in or your data), reads the books it draws, and passes them back with postMessage.
+  // Books are saved as normal shelf records with book_source 'Goodreads'.
+  // Goodreads is in charge of their reading status; books removed on Goodreads are never deleted here.
+  const goodreadsForm = document.getElementById('goodreads-form');
+  const goodreadsInput = document.getElementById('goodreads-widget-code');
+  const goodreadsButton = document.getElementById('goodreads-sync');
+  const goodreadsFeedback = document.getElementById('goodreads-feedback');
+  const goodreadsConnected = document.getElementById('goodreads-connected');
+  const GOODREADS_AUTO_SYNC_HOURS = 6;
+  const GOODREADS_MIN_BOOKS = 100; // asks each widget for at least this many books
+  const GOODREADS_SHELVES = {
+    'currently-reading': { status: 'Reading', label: 'Currently Reading', rank: 4 },
+    'read': { status: 'Finished', label: 'Read', rank: 3 },
+    'did-not-finish': { status: 'Did not finish', label: 'Did Not Finish', rank: 2 },
+    'to-read': { status: 'Want to read', label: 'Want to Read', rank: 1 }
+  };
+
+  // Reads the books out of a Goodreads custom widget. Runs here (on pasted HTML) and inside the sandbox.
+  function extractGoodreadsBooks(root) {
+    var clean = function (value) { return String(value || '').replace(/\s+/g, ' ').trim(); };
+    return Array.prototype.map.call(root.querySelectorAll('[class*="gr_custom_each_container_"]'), function (node) {
+      var link = node.querySelector('a[href*="/review/show/"]');
+      var match = link && /\/review\/show\/(\d+)/.exec(link.getAttribute('href') || '');
+      var titleLink = node.querySelector('[class*="gr_custom_title_"] a');
+      var authorLink = node.querySelector('[class*="gr_custom_author_"] a');
+      var cover = node.querySelector('[class*="gr_custom_book_container_"] img');
+      return {
+        review_id: match ? match[1] : '',
+        title: clean(titleLink ? titleLink.textContent : (cover && cover.getAttribute('alt'))),
+        author: clean(authorLink ? authorLink.textContent : ''),
+        cover: cover ? String(cover.getAttribute('src') || '') : '',
+        rating: node.querySelectorAll('[class*="gr_custom_rating_"] img[src*="star_active"]').length
+      };
+    }).filter(function (book) { return book.review_id && book.title; });
+  }
+
+  // Finds every Goodreads widget in pasted HTML: its script address, shelf and the books it shows right now.
+  function readPastedWidgets(code) {
+    const doc = new DOMParser().parseFromString(String(code || ''), 'text/html'); // inert: nothing runs or loads
+    const found = new Map();
+    const problems = [];
+    doc.querySelectorAll('script[src]').forEach(script => {
+      let url;
+      try { url = new URL(script.getAttribute('src'), 'https://www.goodreads.com/'); } catch (_) { return; }
+      if (url.hostname !== 'www.goodreads.com' || !/^\/review\/custom_widget\/\d+/.test(url.pathname)) return;
+      const label = decodeURIComponent(url.pathname).match(/bookshelf:\s*([\w-]+)/i);
+      const shelf = (url.searchParams.get('shelf') || (label ? label[1] : '')).toLowerCase();
+      if (!GOODREADS_SHELVES[shelf]) { problems.push(shelf || 'a widget with no shelf'); return; }
+      const widgetId = url.searchParams.get('widget_id') || '';
+      url.protocol = 'https:';
+      url.searchParams.set('shelf', shelf);
+      if (!(Number(url.searchParams.get('num_books')) >= GOODREADS_MIN_BOOKS)) url.searchParams.set('num_books', String(GOODREADS_MIN_BOOKS));
+      const holder = [...doc.querySelectorAll('div[id^="gr_custom_widget_"]')].find(div => div.id === 'gr_custom_widget_' + widgetId);
+      found.set(shelf, { shelf, url: url.href, widget_id: widgetId, snapshot: holder ? extractGoodreadsBooks(holder) : [] });
+    });
+    return { widgets: [...found.values()], problems };
+  }
+
+  // Loads one widget's script in a sandboxed iframe and resolves with the books it draws.
+  function loadGoodreadsWidget(widget, timeoutMs = 20000) {
+    return new Promise(resolve => {
+      const token = crypto.randomUUID();
+      const frame = document.createElement('iframe');
+      frame.setAttribute('sandbox', 'allow-scripts');
+      frame.setAttribute('aria-hidden', 'true');
+      frame.tabIndex = -1;
+      frame.style.cssText = 'position:absolute;width:1px;height:1px;left:-9999px;border:0;visibility:hidden;';
+      const attr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const widgetId = String(widget.widget_id || '').replace(/[^\w-]/g, '');
+      frame.srcdoc = `<!doctype html><meta charset="utf-8"><body><div id="gr_custom_widget_${widgetId}"></div>
+<script src="${attr(widget.url)}" charset="utf-8" onload="window.__grLoaded=true"><\/script>
+<script>
+var extractGoodreadsBooks = ${extractGoodreadsBooks.toString()};
+window.addEventListener('load', function () { setTimeout(function () {
+  var books = extractGoodreadsBooks(document);
+  if (!books.length) { for (var key in window) { try {
+    var value = window[key];
+    if (typeof value === 'string' && value.indexOf('gr_custom_each_container_') > -1) {
+      var t = document.createElement('template'); t.innerHTML = value; books = extractGoodreadsBooks(t.content);
+      if (books.length) break;
+    } } catch (e) {} } }
+  parent.postMessage({ goodreadsWidget: ${JSON.stringify(token)}, loaded: !!window.__grLoaded, books: books }, '*');
+}, 300); });
+<\/script>`;
+      let timer;
+      const finish = result => {
+        clearTimeout(timer);
+        window.removeEventListener('message', onMessage);
+        frame.remove();
+        resolve(result);
+      };
+      const onMessage = event => {
+        if (event.source !== frame.contentWindow || !event.data || event.data.goodreadsWidget !== token) return;
+        finish({ loaded: Boolean(event.data.loaded), books: Array.isArray(event.data.books) ? event.data.books.slice(0, 2000) : [] });
+      };
+      window.addEventListener('message', onMessage);
+      timer = setTimeout(() => finish({ loaded: false, books: [] }), timeoutMs);
+      document.body.appendChild(frame);
+    });
+  }
+
+  function biggerCover(url) {
+    return String(url || '').replace(/^http:/, 'https:').replace(/\._[A-Z0-9_]+_\.(jpg|png)$/i, '._SY475_.$1');
+  }
+
+  function showGoodreadsSettings() {
+    const shelves = (goodreadsSettings?.widgets || []).map(w => GOODREADS_SHELVES[w.shelf]?.label).filter(Boolean);
+    goodreadsConnected.textContent = shelves.length ? `Connected: ${shelves.join(', ')}` : '';
+    if (!goodreadsSyncing && goodreadsSettings?.synced_at && !goodreadsFeedback.dataset.sticky) {
+      goodreadsFeedback.textContent = `Last synced ${new Date(goodreadsSettings.synced_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}.`;
+    }
+  }
+
+  async function saveGoodreadsSettings(widgets) {
+    const now = new Date().toISOString();
+    const record = {
+      ...(goodreadsSettings || {}),
+      type: 'goodreads_settings',
+      widgets: widgets.map(({ shelf, url, widget_id }) => ({ shelf, url, widget_id })),
+      synced_at: now,
+      updated_at: now
+    };
+    delete record.feed_url;
+    return goodreadsSettings?.__backendId ? window.dataSdk.update(record) : window.dataSdk.create(record);
+  }
+
+  async function syncGoodreads(widgets, { quiet = false } = {}) {
+    if (goodreadsSyncing || !ready || !widgets.length) return;
+    goodreadsSyncing = true;
+    goodreadsButton.disabled = true;
+    goodreadsFeedback.dataset.sticky = 'yes';
+    try {
+      // 1. read every shelf; a book on two shelves keeps the most advanced one
+      const byReview = new Map();
+      const notes = [];
+      let live = 0;
+      for (const widget of widgets) {
+        const info = GOODREADS_SHELVES[widget.shelf];
+        if (!quiet) goodreadsFeedback.textContent = `Reading your ${info.label} shelf…`;
+        const result = await loadGoodreadsWidget(widget);
+        let shelfBooks = result.books;
+        if (result.loaded && shelfBooks.length) live++;
+        else if (widget.snapshot?.length) {
+          shelfBooks = widget.snapshot;
+          notes.push(`${info.label} used the pasted copy because Goodreads didn't answer`);
+        } else if (!result.loaded) notes.push(`Goodreads didn't answer for ${info.label}`);
+        shelfBooks.forEach(book => {
+          const current = byReview.get(book.review_id);
+          if (!current || GOODREADS_SHELVES[current.shelf].rank < info.rank) byReview.set(book.review_id, { ...book, shelf: widget.shelf });
+        });
+      }
+
+      // 2. add or update shelf records
+      const shelfBooks = [...byReview.values()];
+      let added = 0, updated = 0, failed = 0, done = 0;
+      for (const gb of shelfBooks) {
+        done++;
+        const status = GOODREADS_SHELVES[gb.shelf].status;
+        const cover = safeCoverUrl(biggerCover(gb.cover));
+        const rating = Math.max(0, Math.min(5, Number(gb.rating) || 0));
+        const item = {
+          book_title: String(gb.title).slice(0, 300),
+          book_author: String(gb.author || 'Unknown author').slice(0, 200),
+          cover_url: cover,
+          goodreads_review_id: String(gb.review_id),
+          goodreads_link: `https://www.goodreads.com/review/show/${gb.review_id}`,
+          goodreads_rating: rating,
+          book_source_id: `goodreads:${gb.review_id}`,
+          book_source: 'Goodreads'
+        };
+        if (!/^\d+$/.test(item.goodreads_review_id) || !item.book_title) continue;
+        const existing = books.find(book => book.goodreads_review_id === item.goodreads_review_id) || books.find(book => sameBook(book, item));
+        let outcome = null;
+        if (!existing) {
+          outcome = await window.dataSdk.create({ ...item, status, added_at: new Date().toISOString() });
+          if (outcome.isOk) added++;
+        } else if (existing.status !== status || existing.goodreads_review_id !== item.goodreads_review_id ||
+          existing.goodreads_rating !== rating || (!safeCoverUrl(existing.cover_url) && cover)) {
+          outcome = await window.dataSdk.update({
+            ...existing,
+            status,
+            goodreads_review_id: item.goodreads_review_id,
+            goodreads_link: item.goodreads_link,
+            goodreads_rating: rating,
+            cover_url: safeCoverUrl(existing.cover_url) ? existing.cover_url : cover
+          });
+          if (outcome.isOk) updated++;
+        }
+        if (outcome && !outcome.isOk) failed++;
+        if (!quiet && shelfBooks.length > 20 && done % 10 === 0) goodreadsFeedback.textContent = `Syncing… ${done} of ${shelfBooks.length} books checked.`;
+      }
+
+      if (live || shelfBooks.length) await saveGoodreadsSettings(widgets);
+      const parts = [];
+      if (added) parts.push(`${added} added`);
+      if (updated) parts.push(`${updated} updated`);
+      if (failed) parts.push(`${failed} couldn't be saved`);
+      goodreadsFeedback.textContent = (shelfBooks.length
+        ? `Synced ${shelfBooks.length} ${shelfBooks.length === 1 ? 'book' : 'books'} from Goodreads${parts.length ? ': ' + parts.join(', ') : ', everything was already up to date'}.`
+        : 'No books came back from Goodreads. Check that each shelf has books, then try again.')
+        + (notes.length ? ` (${notes.join('; ')}.)` : '');
+      if (added && !quiet) window.celebrateDashboard?.(goodreadsButton, 'stars');
+      return shelfBooks.length > 0;
+    } catch (_) {
+      goodreadsFeedback.textContent = 'Could not sync with Goodreads. Please try again.';
+      return false;
+    } finally {
+      goodreadsSyncing = false;
+      goodreadsButton.disabled = false;
+    }
+  }
+
+  goodreadsForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!ready) { goodreadsFeedback.textContent = 'Your shelf is unavailable right now. Please try again later.'; return; }
+    const code = goodreadsInput.value.trim();
+    const saved = goodreadsSettings?.widgets || [];
+    if (!code) {
+      if (saved.length) syncGoodreads(saved);
+      else goodreadsFeedback.textContent = 'Paste the widget HTML from Goodreads first.';
+      return;
+    }
+    const { widgets, problems } = readPastedWidgets(code);
+    if (!widgets.length) {
+      goodreadsFeedback.textContent = problems.length
+        ? 'Only the Currently Reading, Read, Want to Read and Did Not Finish shelves can be synced. Pick one of those when you make the widget.'
+        : 'No Goodreads widget found. Copy the whole widget code, including the line that starts with <script src="https://www.goodreads.com/review/custom_widget/';
+      return;
+    }
+    // new widgets replace saved ones for the same shelf; other saved shelves stay
+    const merged = [...saved.filter(w => !widgets.some(n => n.shelf === w.shelf)), ...widgets];
+    const ok = await syncGoodreads(merged);
+    if (ok) goodreadsInput.value = '';
+  });
+
+  function autoSyncGoodreads() {
+    const widgets = goodreadsSettings?.widgets || [];
+    if (!widgets.length || !navigator.onLine) return;
+    const last = Date.parse(goodreadsSettings.synced_at || '') || 0;
+    if (Date.now() - last > GOODREADS_AUTO_SYNC_HOURS * 3600 * 1000) syncGoodreads(widgets, { quiet: true });
+  }
+
   document.getElementById('search-form').addEventListener('submit', async event => {
     event.preventDefault();
     const query = document.getElementById('book-query').value.trim();
@@ -2417,6 +2684,7 @@
       const outcome = await window.dataSdk.init({ onDataChanged: updateShelf });
       if (!outcome.isOk) throw new Error('Shelf unavailable');
       ready = true;
+      autoSyncGoodreads();
     } catch (_) {
       storageFeedback.textContent = 'Your shelf is unavailable right now. Please try again later.';
     }
