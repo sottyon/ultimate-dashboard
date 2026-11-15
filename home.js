@@ -75,7 +75,7 @@
     const used = budget.total > 0 ? budget.spent / budget.total : 0;
     setRing('home-fin-ring', used);
     setText('home-fin-left', fmtMoney(budget.left));
-    setText('home-fin-spent', `${fmtMoney(budget.spent)} of ${fmtMoney(budget.total)} spent`);
+    setText('home-fin-spent', `${fmtMoney(budget.spent)} of ${fmtMoney(budget.total)} spent` + (budget.carry ? ` · ${budget.carry < 0 ? '−' : '+'}${fmtMoney(Math.abs(budget.carry))} from last week` : ''));
     const start = parse(budget.start), end = parse(budget.end);
     setText('home-fin-range', `Week of ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.getMonth() === start.getMonth() ? end.getDate() : end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
     setText('home-fin-next', budget.nextCheck ? `Next paycheck · ${parse(budget.nextCheck).toLocaleDateString('en-US', { weekday: 'short' })}` : '');
