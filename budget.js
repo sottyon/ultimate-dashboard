@@ -18,6 +18,26 @@ button.emoji.pick:hover{box-shadow:0 0 0 2px var(--accent)}
 tr.tap td:first-child{text-decoration:underline dotted var(--ink3);text-underline-offset:3px}
 .seg button .small{font-size:11px}
 .check .name{white-space:normal}
+/* weekly carry-over + spending warning */
+.carry-line{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--ink)}
+.carry-line span:last-child{font-weight:600;padding:2px 10px;border-radius:999px;background:rgba(255,255,255,.75);box-shadow:inset 0 0 0 1.5px #fff}
+.carry-line.over span:last-child{background:#fdbfce}.carry-line.under span:last-child{background:#d0efef}
+.card.roll .name{white-space:normal;font-weight:600}
+.tgl{flex:none;width:60px;height:34px;border-radius:999px;border:0;padding:0;position:relative;cursor:pointer;background:#dbdfeb;box-shadow:inset 0 0 0 1.5px #fff,inset 0 -3px 8px rgba(68,54,47,.06);transition:background .2s}
+.tgl.on{background:#fdbfce}
+.tgl i{position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.7) 0%,rgba(255,255,255,.08) 55%,rgba(255,255,255,.25) 100%),#fff;box-shadow:0 4px 10px -2px rgba(68,54,47,.18),inset 0 2px 2px rgba(255,255,255,.95);transition:transform .2s}
+.tgl.on i{transform:translateX(26px)}
+.tgl:focus-visible,.pace .btn:focus-visible{outline:2px solid #fdbfce;outline-offset:2px}
+.pace-bg{position:fixed;inset:0;z-index:10055;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(68,54,47,.25)}
+.pace-bg.open{display:flex}
+.pace{width:100%;max-width:400px;border-radius:28px;padding:26px 24px 22px;color:#44362f;background:linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.05) 50%,rgba(255,255,255,.2) 100%),rgba(255,255,255,.96);box-shadow:0 16px 40px -8px rgba(68,54,47,.18),inset 0 1px 1px #fff,inset 0 0 0 1.5px #fff;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);animation:up .22s ease-out;outline:none}
+.pace-kicker{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7a706c}
+.pace h3{font-size:22px;font-weight:672;letter-spacing:-.02em;line-height:1.2;margin:6px 0 10px}
+.pace-big{font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-bottom:4px}
+.pace-cats{margin-top:14px;padding:10px 14px;border-radius:16px;background:rgba(253,191,206,.35);display:grid;gap:6px;font-size:14px}
+.pace-btns{display:flex;gap:10px;margin-top:18px}.pace-btns .btn{flex:1;border-radius:999px}
+@media (prefers-reduced-transparency: reduce){.pace{-webkit-backdrop-filter:none;backdrop-filter:none;background:#fff}}
+@media (prefers-reduced-motion: reduce){.pace,.tgl,.tgl i{animation:none;transition:none}}
 `;
 const BUDGET_HTML = "\n<div class=\"bud-head\"><h2 class=\"bud-title\">Finances</h2><div class=\"pill\" id=\"syncPill\">Connecting\u2026</div></div>\n<nav class=\"tabs\" id=\"tabs\">\n  <button data-tab=\"today\" class=\"on\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></svg>Today</button>\n  <button data-tab=\"activity\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 6h16M4 12h16M4 18h10\"/></svg>Activity</button>\n  <button data-tab=\"month\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M5 20V10M12 20V4M19 20v-7\"/></svg>Month</button>\n  <button data-tab=\"goals\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z\"/></svg>Plan</button>\n  <button data-tab=\"accounts\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M3 10h18M7 15h4\"/></svg>Accounts</button>\n</nav>\n<div class=\"wrap\" id=\"view\"></div>\n\n<button class=\"fab\" id=\"fab\" aria-label=\"Add a purchase\">+</button>\n\n\n\n<div class=\"sheet-bg\" id=\"sheetBg\"><div class=\"sheet\" id=\"sheet\"></div></div>\n<div class=\"toast\" id=\"toast\"></div>\n\n";
 
@@ -40,7 +60,7 @@ function boot(host){
     if (fab) fab.classList.toggle("show", budgetVisible && !!S);
   }
   try {
-    new IntersectionObserver(entries => { budgetVisible = entries.some(e => e.isIntersecting); fabState(); }, { threshold: 0.05 }).observe(host);
+    new IntersectionObserver(entries => { budgetVisible = entries.some(e => e.isIntersecting); fabState(); if (budgetVisible) setTimeout(() => { try { paceCheck(); } catch(err){} }, 400); }, { threshold: 0.05 }).observe(host);
   } catch(e){ budgetVisible = true; }
 
   /* ============================================================
@@ -252,7 +272,7 @@ function boot(host){
     const sched = schedule(60), idx = Math.max(0, weekIdxOf(todayISO()));
     const wk = weekByIdx(idx, sched), sp = spentBy(wk.start, wk.end);
     const next = sched.find(c => c.date > todayISO());
-    return { left: wk.total - sp.total, spent: sp.total, total: wk.total, start: wk.start, end: wk.end, nextCheck: next ? next.date : null, money };
+    return { left: wk.total - sp.total, spent: sp.total, total: wk.total, carry: wk.carry || 0, base: wk.base, start: wk.start, end: wk.end, nextCheck: next ? next.date : null, money };
   }
 
   /* ---------- one day's activity, for the Week in Depth cards ---------- */
@@ -339,6 +359,21 @@ function boot(host){
     let cur = h[0]; h.forEach(e => { if (e.from <= dateStr) cur = e; });
     return cur.per;
   }
+  // categories with their own set amount per week (not a share of the spending cash, not tied to any goal)
+  function ownOn(dateStr){
+    const h = [...S.budgetHistory].sort((a, b) => a.from.localeCompare(b.from));
+    let cur = h[0]; h.forEach(e => { if (e.from <= dateStr) cur = e; });
+    const own = (cur && cur.own) || {}, m = {};
+    S.categories.forEach(c => { if (+own[c.name] > 0) m[c.name] = +own[c.name]; });
+    return m;
+  }
+  const ownTotal = m => Object.values(m).reduce((a, v) => a + v, 0);
+  // what gets saved to budgetHistory when categories change (share amounts + set weekly amounts)
+  function budgetSnap(){
+    const per = {}, own = {};
+    S.categories.forEach(x => { if (x.own){ per[x.name] = 0; own[x.name] = +x.weekly || 0; } else per[x.name] = +x.perCheck || 0; });
+    return Object.keys(own).length ? { per, own } : { per };
+  }
   function shares(dateStr){
     const per = perCheckOn(dateStr || todayISO());
     const tot = S.categories.reduce((a, c) => a + (+per[c.name] || 0), 0) || 1;
@@ -398,8 +433,10 @@ function boot(host){
       const spending = checkingAvail - vacT - vetT - extra - fixed - oneTime - goalTotal - xferTotal - itemsTotal;
       const half = (spending + w1 + w2) / 2;
       const weekSpend = [half - w1, half - w2];
-      const sh = shares(dstr);
-      const cat = {}; Object.keys(sh).forEach(k => cat[k] = spending * sh[k]);
+      const sh = shares(dstr), own = ownOn(dstr);
+      // set-amount categories come off the top (two weeks per paycheck); the rest is shared out
+      const shared = spending - 2 * ownTotal(own);
+      const cat = {}; Object.keys(sh).forEach(k => cat[k] = own[k] != null ? 2 * own[k] : shared * sh[k]);
       out.push({ n, date: dstr, end: iso(end), checkingAvail, vacT, vetT, extra, fixed, fixedList, oneTime, oneList,
         goalT, goalTotal, goalBal, xferT, xferTotal, items, itemsTotal, weekSpend,
         spending, cat, general, vac, vet, rent, rentPaid });
@@ -415,15 +452,56 @@ function boot(host){
     return { by, total };
   }
   function weekIdxOf(dateStr){ return Math.floor(dayDiff(D(S.inputs.firstCheck), D(dateStr)) / 7); }
-  function weekByIdx(idx, sched){
+  // the week's planned budget, before any carry-over
+  function baseWeek(idx, sched){
     const start = iso(addDays(D(S.inputs.firstCheck), idx * 7)), end = iso(addDays(D(start), 6));
     const check = idx >= 0 ? sched[Math.floor(idx / 2)] : null;
     const budget = {}; let total = 0;
     if (check){
-      const sh = shares(check.date), half = check.weekSpend ? check.weekSpend[((idx % 2) + 2) % 2] : check.spending / 2;
-      Object.keys(check.cat).forEach(k => { budget[k] = half * (sh[k] || 0); total += budget[k]; });
+      const sh = shares(check.date), own = ownOn(check.date), half = check.weekSpend ? check.weekSpend[((idx % 2) + 2) % 2] : check.spending / 2;
+      const shared = half - ownTotal(own);
+      Object.keys(check.cat).forEach(k => { budget[k] = own[k] != null ? own[k] : shared * (sh[k] || 0); total += budget[k]; });
     }
     return { idx, n: idx + 1, start, end, check, budget, total, prePlan: idx < 0 };
+  }
+  /* ---------- weekly carry-over ----------
+     Whatever you went over (or stayed under) one week moves into the next week's budget.
+     Worked out live from your purchases each time; nothing you saved is changed. */
+  const ROLL_DEFAULT = { on: true, from: "2026-11-09", mode: "both", warn: true, warnAt: 0.85 };
+  const rollCfg = () => ({ ...ROLL_DEFAULT, ...((S && S.rollover) || {}) });
+  const carryMemo = new WeakMap();
+  function carryInto(idx, sched){
+    const cfg = rollCfg();
+    if (!cfg.on || idx < 0) return 0;
+    const first = Math.max(0, weekIdxOf(cfg.from));
+    if (idx <= first) return 0;
+    let memo = carryMemo.get(sched); if (!memo){ memo = new Map(); carryMemo.set(sched, memo); }
+    if (memo.has(idx)) return memo.get(idx);
+    const today = todayISO();
+    let carry = 0, i = first;
+    for (let j = idx - 1; j > first; j--) if (memo.has(j)){ carry = memo.get(j); i = j; break; }
+    for (; i < idx; i++){
+      const b = baseWeek(i, sched);
+      if (!b.check){ carry = 0; memo.set(i + 1, 0); continue; }
+      let next = b.total + carry - spentBy(b.start, b.end).total;
+      // a week that isn't over yet only passes on what you've already gone over
+      if (b.end >= today || cfg.mode === "over") next = Math.min(0, next);
+      carry = r2(next);
+      memo.set(i + 1, carry);
+    }
+    return carry;
+  }
+  function weekByIdx(idx, sched){
+    const w = baseWeek(idx, sched);
+    w.base = w.total; w.carry = w.check ? carryInto(idx, sched) : 0; w.carryBy = {};
+    if (w.carry){
+      const keys = Object.keys(w.budget), pos = keys.filter(k => w.budget[k] > 0);
+      const use = pos.length ? pos : keys;
+      const tot = use.reduce((a, k) => a + Math.max(0, w.budget[k]), 0);
+      use.forEach(k => { const d = tot > 0 ? w.carry * w.budget[k] / tot : w.carry / use.length; w.carryBy[k] = d; w.budget[k] += d; });
+      w.total = r2(w.base + w.carry);
+    }
+    return w;
   }
   function weekFor(dateStr, sched){ const i = weekIdxOf(dateStr); return i < 0 ? null : weekByIdx(i, sched); }
   function weekBounds(){
@@ -441,13 +519,22 @@ function boot(host){
       const days = dayDiff(D(a), D(b)) + 1;
       Object.keys(c.cat).forEach(k => budget[k] = (budget[k] || 0) + c.cat[k] * days / S.inputs.daysBetween);
     });
+    // weekly carry-over, for the days of each week that fall in this month
+    let carry = 0;
+    for (let i = Math.max(0, weekIdxOf(fs)); i <= weekIdxOf(ls); i++){
+      const w = weekByIdx(i, sched); if (!w.carry) continue;
+      const a = w.start > fs ? w.start : fs, b = w.end < ls ? w.end : ls;
+      const part = (dayDiff(D(a), D(b)) + 1) / 7;
+      carry += w.carry * part;
+      Object.keys(w.carryBy).forEach(k => budget[k] = (budget[k] || 0) + w.carryBy[k] * part);
+    }
     // before the plan started, the sheet counts actual spending as the budget
     const preEnd = iso(addDays(D(S.inputs.firstCheck), -1));
     if (fs <= preEnd){
       const pre = spentBy(fs, ls < preEnd ? ls : preEnd);
       Object.keys(pre.by).forEach(k => budget[k] = (budget[k] || 0) + pre.by[k]);
     }
-    return { start: fs, end: ls, budget };
+    return { start: fs, end: ls, budget, carry: r2(carry) };
   }
 
   /* ---------- live balances (Balance Log snapshot + later activity) ---------- */
@@ -573,7 +660,7 @@ function boot(host){
       <div class="card hero"><div class="lbl">Left to spend this week</div>
         <div class="big" style="color:${left < 0 ? "var(--bad)" : "var(--ink)"}">${money(left)}</div>
         ${barHTML(sp.total, wk.total, true)}
-        <div class="row small muted" style="margin-top:8px"><span>${money(sp.total)} spent</span><span>of ${money(wk.total)} weekly cap</span></div></div>
+        <div class="row small muted" style="margin-top:8px"><span>${money(sp.total)} spent</span><span>of ${money(wk.total)} weekly cap</span></div>${carryLine(wk)}</div>
       <div class="stats">
         <div class="stat"><div class="v" style="color:${todaySpent > perDayLeft ? "var(--bad)" : "inherit"}">${money(todaySpent)}</div><div class="k">Spent today</div></div>
         <div class="stat"><div class="v">${money(Math.max(0, perDayLeft - todaySpent))}</div><div class="k">Still OK today<br><span class="faint">${money(perDayLeft)}/day for ${daysLeft} day${daysLeft === 1 ? "" : "s"}</span></div></div>
@@ -587,7 +674,7 @@ function boot(host){
       <div class="card hero"><div class="lbl">${wk.prePlan ? "Spent this week" : isFuture ? "Budget for this week" : left >= 0 ? "Finished under budget by" : "Finished over budget by"}</div>
         <div class="big" style="color:${!wk.prePlan && !isFuture && left < 0 ? "var(--bad)" : "var(--ink)"}">${wk.prePlan ? money(sp.total) : isFuture ? money(wk.total) : money(Math.abs(left))}</div>
         ${wk.total > 0 ? barHTML(sp.total, wk.total, true) : ""}
-        <div class="row small muted" style="margin-top:8px"><span>${money(sp.total)} spent</span><span>${wk.total > 0 ? "of " + money(wk.total) + " weekly cap" : "no budget yet"}</span></div></div>
+        <div class="row small muted" style="margin-top:8px"><span>${money(sp.total)} spent</span><span>${wk.total > 0 ? "of " + money(wk.total) + " weekly cap" : "no budget yet"}</span></div>${carryLine(wk)}</div>
       ${isFuture ? "" : `<div class="stats">
         <div class="stat"><div class="v">${money(sp.total / elapsed)}</div><div class="k">Daily average</div></div>
         <div class="stat"><div class="v">${money(biggest.v)}</div><div class="k">Biggest day<br><span class="faint">${fmtDate(biggest.d, { weekday:"long" })}</span></div></div></div>`}`;
@@ -636,8 +723,15 @@ function boot(host){
     <div class="card" style="position:relative">${chart}</div>
     <h2>By category</h2>
     <div class="list">${wk.prePlan ? catRows({}, sp.by, { spendOnly: true }) : catRows(wk.budget, sp.by)}</div>
+    <button class="btn ghost" id="addCat">+ Add a budget category</button>
     ${todo}
     ${upcomingHTML}`;
+  }
+  // "Planned $X · −$Y carried from last week" under a week's cap
+  function carryLine(wk){
+    if (!wk || !wk.carry) return "";
+    const over = wk.carry < 0;
+    return `<div class="carry-line ${over ? "over" : "under"}"><span>Planned ${money(wk.base)}</span><span>${over ? "−" : "+"}${money(Math.abs(wk.carry)).replace("−", "")} ${over ? "over" : "left"} from last week</span></div>`;
   }
   function transferChecks(check){
     const items = [];
@@ -690,12 +784,13 @@ function boot(host){
       <div class="big">${money(sp.total)}</div>
       ${barHTML(sp.total, total, true)}
       <div class="row small muted" style="margin-top:8px"><span>${money(total - sp.total)} left</span><span>of ${money(total)} budget</span></div>
+      ${mb.carry ? `<div class="carry-line ${mb.carry < 0 ? "over" : "under"}"><span>Planned ${money(total - mb.carry)}</span><span>${mb.carry < 0 ? "−" : "+"}${money(Math.abs(mb.carry)).replace("−", "")} weekly carry-over</span></div>` : ""}
       ${elapsed ? `<div class="small faint" style="margin-top:6px">Day ${elapsed} of ${daysIn} · ${Math.round(elapsed / daysIn * 100)}% of the month gone, ${total ? Math.round(sp.total / total * 100) : 0}% of budget used</div>` : ""}
     </div>
     <div class="stats"><div class="stat"><div class="v">${money(fixed)}</div><div class="k">Fixed bills logged<br><span class="faint">rent, loan, Bark Box</span></div></div>
     <div class="stat"><div class="v">${money(sp.total + fixed)}</div><div class="k">Everything out<br><span class="faint">spending + bills</span></div></div></div>
     <h2>By category</h2><div class="list">${catRows(mb.budget, sp.by)}</div>
-    <p class="small faint" style="margin:0 4px">Budgets are pro-rated from each paycheck's spending cash, like the sheet's Monthly View. Days before ${fmtDate(S.inputs.firstCheck)} use actual spending as the budget.</p>`;
+    <p class="small faint" style="margin:0 4px">Budgets are pro-rated from each paycheck's spending cash, like the sheet's Monthly View. Days before ${fmtDate(S.inputs.firstCheck)} use actual spending as the budget.${rollCfg().on ? " Weekly carry-over (going over or staying under) is included for the days of each week that fall in this month." : ""}</p>`;
   }
 
   function viewGoals(){
@@ -728,6 +823,7 @@ function boot(host){
     const laterItems = (S.checkItems || []).filter(it => it.once && it.from > p.date && future.some(c => c.date === it.from));
     const laterXfers = (S.extraTransfers || []).filter(x => (x.once || (x.from > p.date && !x.until)) && x.from > p.date && future.some(c => c.date === x.from));
     const repeatXfers = (S.extraTransfers || []).filter(x => !x.once && activeOn(x, p.date));
+    const pw = [0, 1].map(h => weekByIdx(weekIdxOf(p.date) + h, sched));
     return `<h1>Plan</h1><p class="sub">Paycheck #${p.n} · ${fmtDate(p.date)} to ${fmtDate(p.end)}</p>
     <h2>Savings goals</h2>
     ${goal(esc(acctLabel("general")), L.general, I.generalTarget, "general", `HYSA · ${(I.apy * 100).toFixed(2)}% APY`)}
@@ -763,15 +859,33 @@ function boot(host){
       <tr><td><b>Cash to spend this cycle</b></td><td><b>${money(p.spending)}</b></td></tr>
       ${splitWeeks ? `<tr><td>Week 1 cap <span class="faint">(${wkLbl(0)})</span></td><td>${money(p.weekSpend[0])}</td></tr>
       <tr><td>Week 2 cap <span class="faint">(${wkLbl(1)})</span></td><td>${money(p.weekSpend[1])}</td></tr>` : `<tr><td>Weekly cap</td><td>${money(p.spending / 2)}</td></tr>`}
+      ${pw.map((w, h) => w.carry ? `<tr><td>Week ${h + 1} carry-over <span class="faint">(${w.carry < 0 ? "over" : "left"} the week before)</span></td><td>${money(w.carry)}</td></tr>
+      <tr><td><b>Week ${h + 1} cap after carry-over</b> <span class="faint">(${wkLbl(h)})</span></td><td><b>${money(w.total)}</b></td></tr>` : "").join("")}
     </table></div>
     ${laterItems.length ? `<div class="list">${laterItems.map(it => `<div class="item row tap" data-citem="${it.id}"><div style="min-width:0"><div class="name">${esc(it.name)}</div><div class="small faint">${it.dir === "in" ? "Money in" : "Money out"} · paycheck of ${fmtDate(it.from)}${+it.week ? " · week " + it.week + " only" : ""}</div></div><div class="num">${it.dir === "in" ? "+" : "−"}${money(+it.amount)}</div></div>`).join("")}</div>` : ""}
     <button class="btn ghost" id="addCItem">+ Add an entry</button>
     <p class="small faint" style="margin:8px 4px 0">Tap any added line to edit or remove it. Entries come out of (or add to) the spending cash for that paycheck, and you can put one on a single week.</p>
 
+    ${rolloverCard()}
+
     <h2>Next paychecks</h2>
     <div class="list">${sched.filter(c => c.date > today).slice(0, 6).map(c => `<div class="item"><div class="row"><div><div class="name">#${c.n} · ${fmtDate(c.date, { weekday:"short", month:"short", day:"numeric" })}</div>
       <div class="small faint">${[c.vacT ? "Vacation " + money(c.vacT, false) : "", c.vetT ? "Vet " + money(c.vetT, false) : "", c.extra ? "Extra General " + money(c.extra) : "", c.goalTotal ? "Goals " + money(c.goalTotal) : "", c.xferTotal ? "Transfers " + money(c.xferTotal) : "", c.fixed ? "Bills " + money(c.fixed) : "", c.oneTime ? "One-time " + money(c.oneTime) : "", c.itemsTotal ? "Entries " + money(c.itemsTotal) : "", c.rentPaid ? "Rent from bucket" : ""].filter(Boolean).join(" · ")}</div></div>
       <div style="text-align:right">${Math.abs(c.weekSpend[0] - c.weekSpend[1]) > 0.004 ? `<div class="num">${money(c.weekSpend[0])} / ${money(c.weekSpend[1])}</div><div class="small faint">week 1 / week 2</div>` : `<div class="num">${money(c.spending / 2)}</div><div class="small faint">/week</div>`}</div></div></div>`).join("")}</div>`;
+  }
+
+  function rolloverCard(){
+    const c = rollCfg();
+    const tog = (key, on, label) => `<button class="tgl ${on ? "on" : ""}" data-rolltoggle="${key}" role="switch" aria-checked="${on}" aria-label="${label}"><i></i></button>`;
+    return `<h2>Weekly carry-over</h2>
+    <div class="card roll">
+      <div class="row"><div style="min-width:0"><div class="name">Carry each week into the next</div><div class="small muted">Go over and next week's budget shrinks by that much${c.mode === "both" ? "; stay under and the rest is added" : ""}.</div></div>${tog("on", c.on, "Weekly carry-over")}</div>
+      ${c.on ? `<div class="seg" style="margin-top:12px"><button data-rollmode="both" class="${c.mode === "both" ? "on" : ""}">Over and under</button><button data-rollmode="over" class="${c.mode === "over" ? "on" : ""}">Only when I go over</button></div>
+      <div class="field" style="margin:12px 0 0"><label>Start with the week of</label><input type="date" id="rollFrom" value="${esc(c.from)}"></div>` : ""}
+      <div class="row" style="margin-top:14px"><div style="min-width:0"><div class="name">Warn me when I'm close</div><div class="small muted">A pop-up when this week's spending reaches ${Math.round(c.warnAt * 100)}% of the cap, and again if you go over.</div></div>${tog("warn", c.warn, "Spending warnings")}</div>
+      ${c.warn ? `<div class="chips" style="margin:10px 0 0">${[0.75, 0.8, 0.85, 0.9, 0.95].map(v => `<button class="chip ${Math.abs(c.warnAt - v) < 0.001 ? "on" : ""}" data-warnat="${v}">${Math.round(v * 100)}%</button>`).join("")}</div>` : ""}
+    </div>
+    <p class="small faint" style="margin:8px 4px 0">Worked out from your purchases each time, so editing or deleting a purchase updates every week after it. A week that's still going only passes on what you've already gone over; any money left is added once the week ends.</p>`;
   }
 
   function viewAccounts(){
@@ -819,10 +933,10 @@ function boot(host){
     <div class="row" style="gap:8px"><button class="btn ghost" id="addBill">+ Monthly bill</button><button class="btn ghost" id="addOne">+ One-time item</button></div>
 
     <h2>Budget per paycheck</h2>
-    <div class="list">${S.categories.map((c, i) => `<div class="item row"><div class="cat"><button class="emoji pick" data-catedit="${i}" aria-label="Change icon or edit ${esc(c.name)}">${EMOJI[c.name] || "•"}</button><div style="min-width:0" class="tap" data-catedit="${i}"><div class="name">${esc(c.name)}</div><div class="small faint">${c.note ? esc(c.note) + " · " : ""}Tap to edit</div></div></div>
-      <input data-percheck="${i}" inputmode="decimal" value="${c.perCheck}" style="width:80px;text-align:right;border:0;background:var(--card2);border-radius:8px;padding:6px 8px"></div>`).join("")}</div>
+    <div class="list">${S.categories.map((c, i) => `<div class="item row"><div class="cat"><button class="emoji pick" data-catedit="${i}" aria-label="Change icon or edit ${esc(c.name)}">${EMOJI[c.name] || "•"}</button><div style="min-width:0" class="tap" data-catedit="${i}"><div class="name">${esc(c.name)}</div><div class="small faint">${c.note ? esc(c.note) + " · " : ""}${c.own ? "Set amount each week · " : ""}Tap to edit</div></div></div>
+      <div class="row" style="gap:6px">${c.own ? `<input data-weekly="${i}" inputmode="decimal" value="${c.weekly ?? 0}" aria-label="${esc(c.name)} amount each week" style="width:80px;text-align:right;border:0;background:var(--card2);border-radius:8px;padding:6px 8px"><span class="small faint">/wk</span>` : `<input data-percheck="${i}" inputmode="decimal" value="${c.perCheck}" aria-label="${esc(c.name)} budget per paycheck" style="width:80px;text-align:right;border:0;background:var(--card2);border-radius:8px;padding:6px 8px">`}</div></div>`).join("")}</div>
     <button class="btn ghost" id="addCat">+ Add a budget category</button>
-    <p class="small faint" style="margin:8px 4px 12px">Tap an icon to change it. These set each category's share of the spending cash (same as the Inputs tab). Changes apply from the current paycheck on; past weeks keep the budget they had. Total: ${money(S.categories.reduce((a, c) => a + +c.perCheck, 0), false)} per check.</p>
+    <p class="small faint" style="margin:8px 4px 12px">Tap an icon to change it. These set each category's share of the spending cash (same as the Inputs tab). Changes apply from the current paycheck on; past weeks keep the budget they had. Total: ${money(S.categories.filter(c => !c.own).reduce((a, c) => a + +c.perCheck, 0), false)} per check${S.categories.some(c => c.own) ? `, plus ${money(S.categories.filter(c => c.own).reduce((a, c) => a + (+c.weekly || 0), 0))} a week in set-amount categories (taken from the spending cash first)` : ""}.</p>
 
     <h2>Backup</h2>
     <div class="row" style="gap:8px"><button class="btn ghost" id="exportBtn">Copy backup</button><button class="btn ghost" id="importBtn">Restore</button></div>
@@ -1366,14 +1480,16 @@ function boot(host){
   function categorySheet(idx){
     const ex = idx != null ? S.categories[idx] : null;
     const c = ex || { name: "", perCheck: "", emoji: "" };
-    let emoji = ex ? (EMOJI[ex.name] || "•") : "🛒";
+    let emoji = ex ? (EMOJI[ex.name] || "•") : "🛒", own = !!(ex && ex.own);
     openSheet(`<div class="row" style="margin-bottom:10px"><button class="btn sm ghost" id="cancel">Cancel</button><b>${ex ? "Edit category" : "New budget category"}</b><button class="btn sm" id="saveCat">Save</button></div>
       <div class="row" style="justify-content:flex-start;gap:12px;margin-bottom:10px"><div class="emoji big-emoji" id="catPreview">${emoji}</div><div class="field" style="flex:1;margin:0"><label>Category name</label><input id="catName" placeholder="e.g. Gym, Gifts, Coffee" value="${esc(c.name)}"></div></div>
-      <div class="field"><label>Budget per paycheck</label><input class="amount-in" id="catPer" inputmode="decimal" placeholder="0" value="${c.perCheck}"></div>
+      <div class="small faint" style="margin:0 4px 6px">How it gets its budget</div>
+      <div class="seg" id="catKind" style="margin-bottom:10px"><button type="button" data-k="share" class="${own ? "" : "on"}">Share of spending cash</button><button type="button" data-k="own" class="${own ? "on" : ""}">Set amount each week</button></div>
+      <div class="field"><label id="catPerLbl">${own ? "Amount each week" : "Budget per paycheck"}</label><input class="amount-in" id="catPer" inputmode="decimal" placeholder="0" value="${own ? (c.weekly ?? "") : c.perCheck}"></div>
       <div class="small faint" style="margin:0 4px 6px">Pick an icon</div>
       <div class="emoji-grid" id="catEmoji">${CAT_EMOJI.map(e => `<button type="button" data-e="${e}" class="${e === emoji ? "on" : ""}" aria-label="${e}">${e}</button>`).join("")}</div>
       <div class="field" style="margin-top:10px"><label>Or type/paste any emoji</label><input id="catOwn" maxlength="8" placeholder="🙂" value="${CAT_EMOJI.includes(emoji) || emoji === "•" ? "" : esc(emoji)}"></div>
-      <p class="small faint" style="margin:0 4px 10px">Like the others, this category's share of each paycheck's spending cash is its amount divided by the total. Changes apply from the current paycheck on.</p>
+      <p class="small faint" id="catHelp" style="margin:0 4px 10px"></p>
       ${ex ? `<button class="btn danger" id="delCat">Delete category</button>` : ""}`,
     sh => {
       const $ = q => sh.querySelector(q);
@@ -1381,7 +1497,18 @@ function boot(host){
       sh.querySelectorAll("#catEmoji button").forEach(b => b.onclick = () => { $("#catOwn").value = ""; setE(b.dataset.e); });
       $("#catOwn").oninput = e => { const v = e.target.value.trim(); if (v) setE(v); };
       $("#cancel").onclick = closeSheet;
-      const recordBudget = () => { const from = currentCheckDate(), per = {}; S.categories.forEach(x => per[x.name] = +x.perCheck || 0); S.budgetHistory = S.budgetHistory.filter(e => e.from !== from).concat([{ from, per }]); };
+      const help = () => { $("#catHelp").textContent = own
+        ? "This category gets exactly this much each week. It isn't linked to any savings goal or bucket. It comes out of the week's spending cash, so your weekly cap stays the same and the other categories share what's left. Changes apply from the current paycheck on."
+        : "This category's share of each paycheck's spending cash is its amount divided by the total of all share categories. It isn't linked to any savings goal or bucket. Changes apply from the current paycheck on."; };
+      sh.querySelectorAll("#catKind button").forEach(b => b.onclick = () => {
+        const was = own; own = b.dataset.k === "own";
+        sh.querySelectorAll("#catKind button").forEach(x => x.classList.toggle("on", x === b));
+        $("#catPerLbl").textContent = own ? "Amount each week" : "Budget per paycheck";
+        if (was !== own && ex) $("#catPer").value = own ? (ex.weekly ?? "") : ex.perCheck;
+        help();
+      });
+      help();
+      const recordBudget = () => { const from = currentCheckDate(); S.budgetHistory = S.budgetHistory.filter(e => e.from !== from).concat([{ from, ...budgetSnap() }]); };
       $("#saveCat").onclick = () => {
         const name = $("#catName").value.trim(), per = Math.max(0, parseAmt($("#catPer").value) || 0);
         if (!name){ toast("Name the category"); $("#catName").focus(); return; }
@@ -1390,12 +1517,13 @@ function boot(host){
           if (ex.name !== name){
             const old = ex.name, now = new Date().toISOString();
             S.txns.forEach(t => { if (t.category === old){ t.category = name; t.updatedAt = now; } });
-            S.budgetHistory.forEach(h => { if (old in h.per){ h.per[name] = h.per[old]; delete h.per[old]; } });
+            S.budgetHistory.forEach(h => { if (old in h.per){ h.per[name] = h.per[old]; delete h.per[old]; } if (h.own && old in h.own){ h.own[name] = h.own[old]; delete h.own[old]; } });
             if (filterCat === old) filterCat = name;
             ex.name = name;
           }
-          ex.perCheck = per; ex.emoji = emoji;
-        } else S.categories.push({ name, perCheck: per, emoji });
+          if (own){ ex.own = true; ex.weekly = per; } else { delete ex.own; delete ex.weekly; ex.perCheck = per; }
+          ex.emoji = emoji;
+        } else S.categories.push(own ? { name, perCheck: 0, own: true, weekly: per, emoji } : { name, perCheck: per, emoji });
         recordBudget();
         save(); closeSheet(); render(); toast(ex ? "Category updated" : `${emoji} ${name} added · budget updated`);
       };
@@ -1420,6 +1548,74 @@ function boot(host){
     });
   }
 
+  // carry-over and warning settings: one new "rollover" setting; nothing else in your budget is touched
+  function setRoll(patch){
+    S.rollover = { ...(S.rollover || {}), ...patch };
+    save(); render();
+    toast(patch.on != null ? (patch.on ? "Weekly carry-over on" : "Weekly carry-over off") : patch.warn != null ? (patch.warn ? "Spending warnings on" : "Spending warnings off") : "Carry-over updated");
+  }
+
+  /* ---------- "you're close to this week's budget" pop-up ----------
+     Shows once per level (close, then over) per week for the whole week and for each category.
+     What's already been shown is remembered on this device only, not in your budget. */
+  const PACE_KEY = LS_KEY + "-pace";
+  function paceSeen(){ try { return JSON.parse(localStorage.getItem(PACE_KEY)) || {}; } catch(e){ return {}; } }
+  function paceCheck(){
+    try {
+      if (!S || sheetOpen() || paceOpen()) return;
+      const cfg = rollCfg(); if (!cfg.warn) return;
+      if (!budgetVisible || !host.getClientRects().length) return;
+      const idx = weekIdxOf(todayISO()); if (idx < 0) return;
+      const sched = schedule(60), wk = weekByIdx(idx, sched), sp = spentBy(wk.start, wk.end);
+      const lvl = (spent, cap) => cap <= 0.004 ? (spent > 0.004 ? 2 : 0) : spent > cap + 0.004 ? 2 : spent >= cap * cfg.warnAt ? 1 : 0;
+      const seen = paceSeen(), mine = seen[wk.start] || { total: 0, cats: {} };
+      const total = lvl(sp.total, wk.total);
+      const cats = S.categories.map(c => ({ name: c.name, spent: sp.by[c.name] || 0, cap: wk.budget[c.name] || 0 }))
+        .map(c => ({ ...c, lvl: lvl(c.spent, c.cap) })).filter(c => c.lvl > 0 && (c.cap > 0.004 || c.spent > 0.004));
+      const fresh = total > (mine.total || 0) || cats.some(c => c.lvl > ((mine.cats || {})[c.name] || 0));
+      if (!fresh) return;
+      const next = { total: Math.max(total, mine.total || 0), cats: { ...(mine.cats || {}) } };
+      cats.forEach(c => next.cats[c.name] = Math.max(c.lvl, next.cats[c.name] || 0));
+      const keep = {}; Object.keys(seen).filter(k => k >= iso(addDays(D(wk.start), -28))).forEach(k => keep[k] = seen[k]);
+      keep[wk.start] = next;
+      try { localStorage.setItem(PACE_KEY, JSON.stringify(keep)); } catch(e){}
+      showPace(wk, sp, total, cats, sched, cfg);
+    } catch(e){}
+  }
+  function paceOpen(){ const el = document.getElementById("paceBg"); return el && el.classList.contains("open"); }
+  function showPace(wk, sp, total, cats, sched, cfg){
+    let bg = document.getElementById("paceBg");
+    if (!bg){
+      bg = window.document.createElement("div"); bg.id = "paceBg"; bg.className = "pace-bg";
+      bg.setAttribute("role", "dialog"); bg.setAttribute("aria-modal", "true"); bg.setAttribute("aria-labelledby", "paceTitle");
+      document.getElementById("sheetBg").after(bg);
+      bg.addEventListener("click", e => {
+        if (e.target === bg || e.target.closest("[data-paceclose]")) closePace();
+        if (e.target.closest("[data-pacego]")){ closePace(); tab = "today"; weekOffset = 0; acctView = null; render(); host.scrollIntoView({ block: "start" }); }
+      });
+      window.document.addEventListener("keydown", e => { if (e.key === "Escape" && paceOpen()) closePace(); });
+    }
+    const left = wk.total - sp.total, over = total === 2 || left < 0;
+    const daysLeft = Math.max(1, dayDiff(D(todayISO()), D(wk.end)) + 1);
+    const nextBase = baseWeek(wk.idx + 1, sched).total;
+    const catList = cats.sort((a, b) => b.lvl - a.lvl || (b.spent / (b.cap || 1)) - (a.spent / (a.cap || 1))).slice(0, 4);
+    const title = over ? "You've gone over this week's budget" : total === 1 ? "You're close to this week's budget" : "A category is close to its budget";
+    bg.innerHTML = `<div class="pace" tabindex="-1">
+      <div class="pace-kicker">${over ? "Over budget" : "Heads up"} · ${fmtDate(wk.start)} – ${fmtDate(wk.end)}</div>
+      <h3 id="paceTitle">${title}</h3>
+      <div class="pace-big">${left < 0 ? money(-left) + " over" : money(left) + " left"}</div>
+      ${barHTML(sp.total, wk.total, true)}
+      <div class="row small" style="margin-top:8px"><span>${money(sp.total)} spent</span><span>of ${money(wk.total)} this week</span></div>
+      ${left > 0 ? `<p class="small" style="margin:10px 0 0">That's about ${money(left / daysLeft)} a day for the ${daysLeft} day${daysLeft === 1 ? "" : "s"} left.</p>` : ""}
+      ${catList.length ? `<div class="pace-cats">${catList.map(c => `<div class="row"><span>${EMOJI[c.name] || "•"} ${esc(c.name)}</span><span class="num">${c.lvl === 2 ? (c.cap > 0.004 ? money(c.spent - c.cap) + " over" : "Unbudgeted") : money(c.cap - c.spent) + " left"}</span></div>`).join("")}</div>` : ""}
+      ${cfg.on ? `<p class="small" style="margin:12px 0 0">${left < 0 ? `Going over carries into next week: its budget drops from ${money(nextBase)} to about ${money(nextBase + left)}.` : `Anything you go over comes off next week's ${money(nextBase)} budget${cfg.mode === "both" ? ", and anything left is added to it" : ""}.`}</p>` : ""}
+      <div class="pace-btns"><button class="btn ghost" data-pacego>See this week</button><button class="btn" data-paceclose>Got it</button></div>
+    </div>`;
+    bg.classList.add("open");
+    try { bg.querySelector("[data-paceclose]").focus(); } catch(e){}
+  }
+  function closePace(){ const bg = document.getElementById("paceBg"); if (bg) bg.classList.remove("open"); }
+
   /* ---------- render & events ---------- */
   function render(){
     try { window.dispatchEvent(new CustomEvent("ultimate-budget-change")); } catch(e){}
@@ -1438,6 +1634,7 @@ function boot(host){
     }
     const q = document.getElementById("q");
     if (q) q.oninput = e => { query = e.target.value; const pos = e.target.selectionStart; render(); const n = document.getElementById("q"); n.focus(); n.setSelectionRange(pos, pos); };
+    paceCheck();
     const aq = document.getElementById("acctQ");
     if (aq) aq.oninput = e => { acctQuery = e.target.value; const pos = e.target.selectionStart; render(); const n = document.getElementById("acctQ"); n.focus(); try { n.setSelectionRange(pos, pos); } catch(err){} };
   }
@@ -1453,6 +1650,9 @@ function boot(host){
   document.getElementById("view").addEventListener("click", async e => {
     const t = e.target;
     const edit = t.closest("[data-edit]"); if (edit){ txnSheet(edit.dataset.edit); return; }
+    const rt = t.closest("[data-rolltoggle]"); if (rt){ const k = rt.dataset.rolltoggle; setRoll({ [k]: !rollCfg()[k] }); return; }
+    const rm = t.closest("[data-rollmode]"); if (rm){ setRoll({ mode: rm.dataset.rollmode }); return; }
+    const wa = t.closest("[data-warnat]"); if (wa){ setRoll({ warnAt: +wa.dataset.warnat }); return; }
     const mv = t.closest("[data-move]"); if (mv){ if (!moveDone(mv.dataset.move) && isSavings(mv.dataset.to) && +mv.dataset.amt > 0) chaChing(mv); toggleMove(mv.dataset.move, mv.dataset.label, mv.dataset.from, mv.dataset.to, +mv.dataset.amt); return; }
     const f = t.closest("[data-filter]"); if (f){ filterCat = f.dataset.filter; render(); return; }
     const bill = t.closest("[data-bill]"); if (bill){ billSheet("bill", +bill.dataset.bill); return; }
@@ -1508,11 +1708,12 @@ function boot(host){
     toast(`${rec.amount < 0 ? "Refund" : "Added"} ${money(Math.abs(rec.amount))} · ${rec.category} · ${rec.account}`);
   });
   document.getElementById("view").addEventListener("change", e => {
-    const i = e.target.closest("[data-percheck]"); if (!i) return;
-    const v = parseFloat(i.value), c = S.categories[+i.dataset.percheck];
-    c.perCheck = isNaN(v) ? 0 : Math.max(0, v);
-    const from = currentCheckDate(), per = {}; S.categories.forEach(x => per[x.name] = +x.perCheck || 0);
-    S.budgetHistory = S.budgetHistory.filter(e => e.from !== from).concat([{ from, per }]);
+    if (e.target.id === "rollFrom"){ if (e.target.value) setRoll({ from: e.target.value }); return; }
+    const i = e.target.closest("[data-percheck], [data-weekly]"); if (!i) return;
+    const v = parseFloat(i.value), c = S.categories[+(i.dataset.percheck ?? i.dataset.weekly)];
+    if (i.dataset.weekly != null) c.weekly = isNaN(v) ? 0 : Math.max(0, v); else c.perCheck = isNaN(v) ? 0 : Math.max(0, v);
+    const from = currentCheckDate();
+    S.budgetHistory = S.budgetHistory.filter(e => e.from !== from).concat([{ from, ...budgetSnap() }]);
     save(); render(); toast("Budget updated");
   });
 

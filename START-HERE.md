@@ -197,11 +197,31 @@ To edit or remove anything you added, tap its line (dotted underline) in the tab
 5. Set the date, add an optional note, and tap **Save**. Deposits into savings buckets get the cha-ching.
 6. To change or delete a deposit, tap it in the **Deposits** list or on the account's page.
 
-**Add a budget category**
-1. Under **Budget per paycheck**, tap **+ Add a budget category**.
-2. Enter a name and its budget per paycheck, then tap an icon in the emoji grid (or type any emoji below it).
-3. Tap **Save**. The spending cash is re-split across all categories.
-4. To change any category's icon, name or amount, tap its icon or name. Deleting a category keeps past purchases' names.
+**Add a budget category** (not linked to any savings goal or bucket)
+1. Tap **+ Add a budget category**. It's on the **Today** tab under **By category**, and on the **Accounts** tab under **Budget per paycheck**.
+2. Enter a name and pick an icon in the emoji grid (or type any emoji below it).
+3. Under **How it gets its budget**, choose one:
+   - **Share of spending cash**: enter a budget per paycheck. The category gets that amount ÷ the total of all share categories, like the existing ones.
+   - **Set amount each week**: enter a weekly amount (for example $25 for Gym). It gets exactly that each week. It comes out of the week's spending cash first, so your weekly cap stays the same and the other categories share what's left.
+4. Tap **Save**. Changes apply from the current paycheck on; past weeks keep their budgets.
+5. To change any category's icon, name, type or amount, tap its icon or name. On the Accounts tab, set-amount categories show a **/wk** box you can edit directly. Deleting a category keeps past purchases' names.
+
+### Weekly carry-over
+Each week's leftover or overspending moves into the next week's budget. If you go over by $100 this week, next week's cap is $100 lower; if you finish $40 under, next week gets $40 more.
+- It's worked out from your purchases every time, and **nothing you've saved is changed**. Edit or delete a purchase and every later week updates.
+- A week that's still going only passes on what you've **already** gone over. Leftover money is added once the week ends.
+- The extra or missing amount is spread across categories in proportion to their budgets.
+- **Today** shows the change under the weekly cap ("Planned $600 · −$100 over from last week"). **Plan** adds "carry-over" and "cap after carry-over" rows for this paycheck's weeks. **Month** includes carry-over for the days of each week in that month. The Dashboard's Finances card and the daily budget in Week in Depth use the adjusted cap too.
+
+To change it, open **Finances → Plan** and scroll to **Weekly carry-over**:
+1. Use the **Carry each week into the next** switch to turn it on or off (on by default).
+2. Choose **Over and under** (default) or **Only when I go over**.
+3. **Start with the week of** sets the first week whose result carries forward (default: the week of Nov 9, 2026). Earlier weeks aren't counted.
+
+### "Close to your budget" pop-up
+When this week's spending reaches 85% of the weekly cap, a pop-up shows what's left, a per-day amount for the rest of the week, any categories that are close or over, and how next week's budget will change. It shows again if you go over. Each warning appears once per week (for the week overall and for each category), and only while Finances is on screen.
+- Turn it off, or change 85% to 75%, 80%, 90% or 95%, under **Plan → Weekly carry-over → Warn me when I'm close**.
+- Which warnings you've already seen is remembered on each device, not in your budget.
 
 ## Updating the Budget page later
 `budget.js` is generated from the Paycheck Budget app. If you change the original app and want those changes here, clone `sottyon/Finance` next to this repo and run:
